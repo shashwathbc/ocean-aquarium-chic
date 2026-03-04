@@ -1,7 +1,8 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Minus, Plus, ShoppingCart, ArrowLeft } from "lucide-react";
 import { useState } from "react";
+import { useCart } from "@/contexts/CartContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
@@ -13,6 +14,9 @@ const ProductDetail = () => {
   const { id } = useParams();
   const product = products.find((p) => p.id === id);
   const [qty, setQty] = useState(1);
+  const { addToCart, cart } = useCart();
+  const navigate = useNavigate();
+  const inCart = cart.some((item) => item?.product?.id === product?.id);
 
   if (!product) {
     return (
@@ -77,10 +81,34 @@ const ProductDetail = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3">
-                <Button variant="default" size="lg" className="flex-1">
-                  <ShoppingCart className="h-4 w-4 mr-2" /> Add to Cart
-                </Button>
-                <Button variant="coral" size="lg" className="flex-1">
+                {inCart ? (
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    className="flex-1"
+                    onClick={() => navigate("/cart")}
+                  >
+                    <ShoppingCart className="h-4 w-4 mr-2" /> Go to Cart
+                  </Button>
+                ) : (
+                  <Button
+                    variant="default"
+                    size="lg"
+                    className="flex-1"
+                    onClick={() => addToCart(product, qty)}
+                  >
+                    <ShoppingCart className="h-4 w-4 mr-2" /> Add to Cart
+                  </Button>
+                )}
+                <Button
+                  variant="coral"
+                  size="lg"
+                  className="flex-1"
+                  onClick={() => {
+                    addToCart(product, qty);
+                    navigate("/cart");
+                  }}
+                >
                   Buy Now
                 </Button>
               </div>

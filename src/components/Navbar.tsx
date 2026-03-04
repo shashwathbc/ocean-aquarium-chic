@@ -4,6 +4,7 @@ import { Search, ShoppingCart, Menu, X, Sun, Moon, Fish } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "@/hooks/useTheme";
+import { useCart } from "@/contexts/CartContext";
 
 const navLinks = [
   { label: "Home", to: "/" },
@@ -16,6 +17,7 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { theme, toggle } = useTheme();
+  const { cartCount } = useCart();
   const location = useLocation();
 
   useEffect(() => {
@@ -31,9 +33,8 @@ const Navbar = () => {
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          scrolled ? "glass shadow-lg" : "bg-transparent"
-        }`}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "glass shadow-lg" : "bg-transparent"
+          }`}
       >
         <div className="container mx-auto flex items-center justify-between h-16 md:h-20 px-4">
           {/* Logo */}
@@ -50,11 +51,10 @@ const Navbar = () => {
               <Link
                 key={link.to}
                 to={link.to}
-                className={`font-display font-medium text-sm tracking-wide transition-colors hover:text-primary ${
-                  location.pathname === link.to
-                    ? "text-primary"
-                    : "text-foreground/70"
-                }`}
+                className={`font-display font-medium text-sm tracking-wide transition-colors hover:text-primary ${location.pathname === link.to
+                  ? "text-primary"
+                  : "text-foreground/70"
+                  }`}
               >
                 {link.label}
               </Link>
@@ -69,9 +69,11 @@ const Navbar = () => {
             <Link to="/cart">
               <Button variant="ghost" size="icon" className="text-foreground/70 hover:text-primary relative">
                 <ShoppingCart className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-accent text-[10px] font-bold flex items-center justify-center text-accent-foreground">
-                  3
-                </span>
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-accent text-[10px] font-bold flex items-center justify-center text-accent-foreground">
+                    {cartCount}
+                  </span>
+                )}
               </Button>
             </Link>
             <Button
@@ -123,9 +125,8 @@ const Navbar = () => {
                   <Link
                     key={link.to}
                     to={link.to}
-                    className={`font-display font-medium text-lg py-2 border-b border-border transition-colors hover:text-primary ${
-                      location.pathname === link.to ? "text-primary" : "text-foreground/70"
-                    }`}
+                    className={`font-display font-semibold text-lg py-2 border-b border-border transition-colors hover:text-primary ${location.pathname === link.to ? "text-primary" : "text-foreground/70"
+                      }`}
                   >
                     {link.label}
                   </Link>

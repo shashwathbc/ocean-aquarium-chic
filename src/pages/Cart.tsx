@@ -1,33 +1,14 @@
 import { motion } from "framer-motion";
 import { Trash2, Minus, Plus } from "lucide-react";
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
 import { Button } from "@/components/ui/button";
-import { products } from "@/components/FeaturedProducts";
-
-const initialCart = [
-  { product: products[0], qty: 2 },
-  { product: products[3], qty: 1 },
-  { product: products[5], qty: 1 },
-];
+import { useCart } from "@/contexts/CartContext";
 
 const Cart = () => {
-  const [cart, setCart] = useState(initialCart);
-
-  const updateQty = (id: string, delta: number) => {
-    setCart((prev) =>
-      prev.map((item) =>
-        item.product.id === id ? { ...item, qty: Math.max(1, item.qty + delta) } : item
-      )
-    );
-  };
-
-  const remove = (id: string) => setCart((prev) => prev.filter((item) => item.product.id !== id));
-
-  const total = cart.reduce((sum, item) => sum + item.product.price * item.qty, 0);
+  const { cart, updateQty, removeFromCart, cartTotal } = useCart();
 
   return (
     <div className="min-h-screen">
@@ -81,7 +62,7 @@ const Cart = () => {
                         <Plus className="h-3 w-3" />
                       </Button>
                     </div>
-                    <Button size="icon" variant="ghost" className="text-destructive h-9 w-9" onClick={() => remove(item.product.id)}>
+                    <Button size="icon" variant="ghost" className="text-destructive h-9 w-9" onClick={() => removeFromCart(item.product.id)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </motion.div>
@@ -92,7 +73,7 @@ const Cart = () => {
                 <div className="flex justify-between items-center mb-4">
                   <span className="font-display font-semibold text-lg">Total</span>
                   <span className="font-display font-bold text-2xl text-primary">
-                    ₹{total.toLocaleString()}
+                    ₹{cartTotal.toLocaleString()}
                   </span>
                 </div>
                 <Link to="/checkout">

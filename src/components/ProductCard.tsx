@@ -1,6 +1,7 @@
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useCart } from "@/contexts/CartContext";
 
 interface Product {
   id: string;
@@ -11,6 +12,9 @@ interface Product {
 }
 
 const ProductCard = ({ product }: { product: Product }) => {
+  const { addToCart, removeFromCart, cart } = useCart();
+  const inCart = cart.some((item) => item.product.id === product.id);
+
   return (
     <Link
       to={`/product/${product.id}`}
@@ -39,13 +43,21 @@ const ProductCard = ({ product }: { product: Product }) => {
           <Button
             size="icon"
             variant="ghost"
-            className="h-9 w-9 rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground"
+            className={`h-9 w-9 rounded-xl transition-all duration-300 ${inCart
+                ? "bg-destructive/10 text-destructive hover:bg-destructive/20 hover:text-destructive shadow-[0_0_10px_rgba(239,68,68,0.2)]"
+                : "bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground"
+              }`}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
+              if (inCart) {
+                removeFromCart(product.id);
+              } else {
+                addToCart(product, 1);
+              }
             }}
           >
-            <ShoppingCart className="h-4 w-4" />
+            {inCart ? <Trash2 className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
           </Button>
         </div>
       </div>

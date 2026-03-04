@@ -5,9 +5,11 @@ import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
 import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
 
 const Checkout = () => {
   const [submitted, setSubmitted] = useState(false);
+  const { clearCart } = useCart();
 
   if (submitted) {
     return (
@@ -45,6 +47,7 @@ const Checkout = () => {
           <form
             onSubmit={(e) => {
               e.preventDefault();
+              clearCart();
               setSubmitted(true);
             }}
             className="space-y-5"
