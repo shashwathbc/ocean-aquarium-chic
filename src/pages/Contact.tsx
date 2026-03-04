@@ -1,0 +1,121 @@
+import { motion } from "framer-motion";
+import { Phone, MapPin, MessageCircle, Send } from "lucide-react";
+import { useState } from "react";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import FloatingButtons from "@/components/FloatingButtons";
+import { Button } from "@/components/ui/button";
+
+const Contact = () => {
+  const [sent, setSent] = useState(false);
+
+  return (
+    <div className="min-h-screen">
+      <Navbar />
+      <div className="pt-24 md:pt-28 pb-20">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-14"
+          >
+            <h1 className="font-display font-bold text-3xl md:text-5xl">Get in Touch</h1>
+            <p className="text-muted-foreground mt-2">We'd love to hear from you</p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            {/* Contact Info */}
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="space-y-6"
+            >
+              <div className="glass rounded-2xl p-6 card-hover">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <Phone className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-display font-semibold">Phone</p>
+                    <p className="text-muted-foreground text-sm">+91 98765 43210</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="glass rounded-2xl p-6 card-hover">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-xl bg-[hsl(142,70%,45%)]/10 flex items-center justify-center">
+                    <MessageCircle className="h-5 w-5 text-[hsl(142,70%,45%)]" />
+                  </div>
+                  <div>
+                    <p className="font-display font-semibold">WhatsApp</p>
+                    <a href="https://wa.me/919876543210" target="_blank" rel="noopener noreferrer" className="text-primary text-sm hover:underline">
+                      Chat with us
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              <div className="glass rounded-2xl p-6 card-hover">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <MapPin className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-display font-semibold">Address</p>
+                    <p className="text-muted-foreground text-sm">123 MG Road, Bangalore 560001</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Map */}
+              <div className="rounded-2xl overflow-hidden h-[200px]">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3887.985594859498!2d77.5945627!3d12.9715987!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTLCsDU4JzE3LjgiTiA3N8KwMzUnNDAuNCJF!5e0!3m2!1sen!2sin!4v1234567890"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  title="Aquarium World Location"
+                />
+              </div>
+            </motion.div>
+
+            {/* Contact Form */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+            >
+              <form
+                onSubmit={(e) => { e.preventDefault(); setSent(true); }}
+                className="glass rounded-2xl p-6 md:p-8 space-y-5"
+              >
+                <h3 className="font-display font-bold text-xl mb-2">Send us a Message</h3>
+                <div>
+                  <label className="font-display font-semibold text-sm mb-1.5 block">Name</label>
+                  <input required className="w-full px-4 py-3 rounded-xl border border-input bg-background font-body focus:ring-2 focus:ring-ring outline-none" placeholder="Your name" />
+                </div>
+                <div>
+                  <label className="font-display font-semibold text-sm mb-1.5 block">Phone</label>
+                  <input required className="w-full px-4 py-3 rounded-xl border border-input bg-background font-body focus:ring-2 focus:ring-ring outline-none" placeholder="+91 98765 43210" />
+                </div>
+                <div>
+                  <label className="font-display font-semibold text-sm mb-1.5 block">Message</label>
+                  <textarea required rows={5} className="w-full px-4 py-3 rounded-xl border border-input bg-background font-body focus:ring-2 focus:ring-ring outline-none resize-none" placeholder="How can we help?" />
+                </div>
+                <Button type="submit" size="lg" className="w-full" disabled={sent}>
+                  {sent ? "Message Sent ✓" : <><Send className="h-4 w-4 mr-2" /> Send Message</>}
+                </Button>
+              </form>
+            </motion.div>
+          </div>
+        </div>
+      </div>
+      <Footer />
+      <FloatingButtons />
+    </div>
+  );
+};
+
+export default Contact;
