@@ -1,15 +1,14 @@
 import { motion } from "framer-motion";
 import { Trash2, Minus, Plus } from "lucide-react";
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
 import { Button } from "@/components/ui/button";
-import { useCart } from "@/context/CartContext";
+import { useCart } from "@/contexts/CartContext";
 
 const Cart = () => {
-  const { cart, updateQty, remove, total } = useCart();
+  const { cart, updateQty, removeFromCart, cartTotal } = useCart();
 
   return (
     <div className="min-h-screen">
@@ -63,7 +62,7 @@ const Cart = () => {
                         <Plus className="h-3 w-3" />
                       </Button>
                     </div>
-                    <Button size="icon" variant="ghost" className="text-destructive h-9 w-9" onClick={() => remove(item.product.id)}>
+                    <Button size="icon" variant="ghost" className="text-destructive h-9 w-9" onClick={() => removeFromCart(item.product.id)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </motion.div>
@@ -74,7 +73,7 @@ const Cart = () => {
                 <div className="flex justify-between items-center mb-4">
                   <span className="font-display font-semibold text-lg">Total</span>
                   <span className="font-display font-bold text-2xl text-primary">
-                    ₹{total.toLocaleString()}
+                    ₹{cartTotal.toLocaleString()}
                   </span>
                 </div>
                 <Link to="/checkout">

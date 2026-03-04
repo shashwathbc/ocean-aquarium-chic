@@ -4,7 +4,7 @@ import { Search, ShoppingCart, Menu, X, Sun, Moon, Fish } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "@/hooks/useTheme";
-import { useCart } from "@/context/CartContext";
+import { useCart } from "@/contexts/CartContext";
 import { products } from "@/components/FeaturedProducts";
 
 const navLinks = [
@@ -15,7 +15,7 @@ const navLinks = [
 ];
 
 const Navbar = () => {
-  const { itemCount } = useCart();
+  const { cartCount } = useCart();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -149,9 +149,11 @@ const Navbar = () => {
             <Link to="/cart">
               <Button variant="ghost" size="icon" className="text-foreground/70 hover:text-primary relative">
                 <ShoppingCart className="h-7 w-7" />
-                <span className="absolute max-h-5 max-w-5 px-1 min-w-4 min-h-4 aspect-square -top-1 -right-1 rounded-full bg-accent text-[9px] font-bold flex items-center justify-center text-accent-foreground">
-                  {itemCount}
-                </span>
+                {cartCount > 0 && (
+                  <span className="absolute max-h-5 max-w-5 px-1 min-w-4 min-h-4 aspect-square -top-1 -right-1 rounded-full bg-accent text-[9px] font-bold flex items-center justify-center text-accent-foreground">
+                    {cartCount}
+                  </span>
+                )}
               </Button>
             </Link>
             <Button

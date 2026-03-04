@@ -1,14 +1,14 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Minus, Plus, ShoppingCart, ArrowLeft } from "lucide-react";
 import { useState } from "react";
+import { useCart } from "@/contexts/CartContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
 import { Button } from "@/components/ui/button";
 import { products } from "@/components/FeaturedProducts";
 import ProductCard from "@/components/ProductCard";
-import { useCart } from "@/context/CartContext";
 import { useToast } from "@/components/ui/use-toast";
 
 const ProductDetail = () => {
@@ -17,6 +17,7 @@ const ProductDetail = () => {
   const [qty, setQty] = useState(1);
   const { cart, addToCart } = useCart();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const [activeMedia, setActiveMedia] = useState(0);
 
@@ -117,10 +118,7 @@ const ProductDetail = () => {
                   className={`flex-1 py-7 text-lg font-bold shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 ${cartItem ? 'bg-green-500/10 text-green-600 hover:bg-green-500/20 hover:text-green-700 shadow-green-500/10' : 'shadow-primary/20'}`}
                   onClick={() => {
                     addToCart(product, qty);
-                    toast({
-                      title: cartItem ? "Cart Updated" : "Added to cart",
-                      description: `${qty}x ${product.name} ${cartItem ? 'updated in' : 'added to'} your cart.`,
-                    });
+                    // CartProvider already handles toast.success but we can keep it silent here or let contexts handle it
                   }}
                 >
                   <ShoppingCart className="h-6 w-6 mr-3" />

@@ -1,6 +1,7 @@
-import { ShoppingCart, Plus, Minus } from "lucide-react";
+import { ShoppingCart, Plus, Minus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useCart } from "@/contexts/CartContext";
 
 interface Product {
   id: string;
@@ -10,10 +11,8 @@ interface Product {
   category: string;
 }
 
-import { useCart } from "@/context/CartContext";
-
 const ProductCard = ({ product }: { product: Product }) => {
-  const { cart, addToCart, updateQty, remove } = useCart();
+  const { cart, addToCart, updateQty, removeFromCart } = useCart();
   const cartItem = cart.find(item => item.product.id === product.id);
 
   return (
@@ -51,7 +50,7 @@ const ProductCard = ({ product }: { product: Product }) => {
                 variant="ghost"
                 className="h-7 w-7 text-primary hover:bg-primary hover:text-white rounded-lg"
                 onClick={() => {
-                  if (cartItem.qty === 1) remove(product.id);
+                  if (cartItem.qty === 1) removeFromCart(product.id);
                   else updateQty(product.id, -1);
                 }}
               >
@@ -72,11 +71,11 @@ const ProductCard = ({ product }: { product: Product }) => {
             <Button
               size="icon"
               variant="ghost"
-              className="h-9 w-9 rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground"
+              className="h-9 w-9 rounded-xl transition-all duration-300 bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                addToCart(product);
+                addToCart(product, 1);
               }}
             >
               <ShoppingCart className="h-4 w-4" />
