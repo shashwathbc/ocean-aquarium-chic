@@ -1,0 +1,13 @@
+var R=require("../../chunks/ssr/[turbopack]_runtime.js")("server/app/_not-found/page.js")
+R.c("server/chunks/ssr/Documents_freelance_ocean-aquarium-chic_814268ca._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__6f649b64._.js")
+R.c("server/chunks/ssr/0bd67_next_dist_esm_build_templates_app-page_ae5b5062.js")
+R.c("server/chunks/ssr/[root-of-the-server]__41610860._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__1765f99b._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__f7885367._.js")
+R.c("server/chunks/ssr/Documents_freelance_ocean-aquarium-chic_src_app_8fc3b859._.js")
+R.c("server/chunks/ssr/Documents_freelance_ocean-aquarium-chic_src_app_not-found_tsx_9f24e93d._.js")
+R.c("server/chunks/ssr/0bd67_next_dist_client_components_595527d4._.js")
+R.c("server/chunks/ssr/4aeed_ocean-aquarium-chic__next-internal_server_app__not-found_page_actions_4e5c4815.js")
+R.m(11305)
+module.exports=R.m(11305).exports

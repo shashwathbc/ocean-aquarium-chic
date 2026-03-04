@@ -1,3 +1,4 @@
+"use client";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -5,7 +6,7 @@ export interface Product {
     id: string;
     name: string;
     price: number;
-    image: string;
+    image: any;
     category: string;
 }
 
@@ -27,14 +28,20 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [cart, setCart] = useState<CartItem[]>(() => {
-        const saved = localStorage.getItem("cart");
-        return saved ? JSON.parse(saved) : [];
-    });
+    const [cart, setCart] = useState<CartItem[]>([]);
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        localStorage.setItem("cart", JSON.stringify(cart));
-    }, [cart]);
+        const saved = localStorage.getItem("cart");
+        if (saved) setCart(JSON.parse(saved));
+        setMounted(true);
+    }, []);
+
+    useEffect(() => {
+        if (mounted) {
+            localStorage.setItem("cart", JSON.stringify(cart));
+        }
+    }, [cart, mounted]);
 
     const addToCart = (product: Product, qty: number = 1) => {
         setCart((prev) => {
@@ -63,8 +70,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const clearCart = () => setCart([]);
 
-    const cartCount = cart.reduce((sum, item) => sum + item.qty, 0);
-    const cartTotal = cart.reduce((sum, item) => sum + item.product.price * item.qty, 0);
+    const cartCount = mounted ? cart.reduce((sum, item) => sum + item.qty, 0) : 0;
+    const cartTotal = mounted ? cart.reduce((sum, item) => sum + item.product.price * item.qty, 0) : 0;
 
     return (
         <CartContext.Provider

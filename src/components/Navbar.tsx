@@ -1,9 +1,12 @@
+"use client";
+
 import { useState, useEffect, useRef } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { Search, ShoppingCart, Menu, X, Sun, Moon, Fish } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { useTheme } from "@/hooks/useTheme";
+import { useTheme } from "next-themes";
 import { useCart } from "@/contexts/CartContext";
 import { products } from "@/components/FeaturedProducts";
 
@@ -24,9 +27,10 @@ const Navbar = () => {
   const [searchResults, setSearchResults] = useState<typeof products>([]);
 
   const searchRef = useRef<HTMLDivElement>(null);
-  const { theme, toggle } = useTheme();
-  const location = useLocation();
-  const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
+  const toggle = () => setTheme(theme === "dark" ? "light" : "dark");
+  const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -63,7 +67,7 @@ const Navbar = () => {
 
   useEffect(() => {
     setMobileOpen(false);
-  }, [location.pathname]);
+  }, [pathname]);
 
   return (
     <>
@@ -73,7 +77,7 @@ const Navbar = () => {
       >
         <div className="container mx-auto flex items-center justify-between h-16 md:h-20 px-4">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
+          <Link href="/" className="flex items-center gap-2 group">
             <Fish className="h-8 w-8 text-primary transition-transform group-hover:scale-110" />
             <span className="font-display font-bold text-xl md:text-2xl gradient-text">
               Aquarium World
@@ -85,8 +89,8 @@ const Navbar = () => {
             {navLinks.map((link) => (
               <Link
                 key={link.to}
-                to={link.to}
-                className={`font-display font-bold text-lg md:text-xl tracking-wide transition-colors hover:text-primary ${location.pathname === link.to
+                href={link.to}
+                className={`font-display font-bold text-lg md:text-xl tracking-wide transition-colors hover:text-primary ${pathname === link.to
                   ? "text-primary"
                   : "text-foreground/70"
                   }`}
@@ -125,9 +129,9 @@ const Navbar = () => {
                             <div
                               key={p.id}
                               className="flex items-center gap-3 p-2 hover:bg-muted rounded-lg cursor-pointer transition-colors"
-                              onClick={() => { navigate(`/product/${p.id}`); setSearchOpen(false); }}
+                              onClick={() => { router.push(`/product/${p.id}`); setSearchOpen(false); }}
                             >
-                              <img src={p.image} alt={p.name} className="w-12 h-12 rounded-md object-cover flex-shrink-0 shadow-sm" />
+                              <img src={typeof p.image === 'object' && p.image !== null && 'src' in p.image ? (p.image as any).src : p.image as string} alt={p.name} className="w-12 h-12 rounded-md object-cover flex-shrink-0 shadow-sm" />
                               <div className="min-w-0">
                                 <p className="text-sm font-bold truncate">{p.name}</p>
                                 <p className="text-xs font-medium text-primary">₹{p.price}</p>
@@ -146,7 +150,7 @@ const Navbar = () => {
               </AnimatePresence>
             </div>
 
-            <Link to="/cart">
+            <Link href="/cart">
               <Button variant="ghost" size="icon" className="text-foreground/70 hover:text-primary relative">
                 <ShoppingCart className="h-7 w-7" />
                 {cartCount > 0 && (
@@ -204,8 +208,8 @@ const Navbar = () => {
                 {navLinks.map((link) => (
                   <Link
                     key={link.to}
-                    to={link.to}
-                    className={`font-display font-bold text-2xl py-3 border-b border-border transition-colors hover:text-primary ${location.pathname === link.to ? "text-primary" : "text-foreground/70"
+                    href={link.to}
+                    className={`font-display font-bold text-2xl py-3 border-b border-border transition-colors hover:text-primary ${pathname === link.to ? "text-primary" : "text-foreground/70"
                       }`}
                     onClick={() => setMobileOpen(false)}
                   >

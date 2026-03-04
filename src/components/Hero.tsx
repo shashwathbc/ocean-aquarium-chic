@@ -1,5 +1,7 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import heroImg from "@/assets/hero-underwater.jpg";
 
@@ -9,7 +11,7 @@ const Hero = () => {
       {/* Background Image */}
       <div className="absolute inset-0">
         <img
-          src={heroImg}
+          src={(heroImg as any).src || (heroImg as unknown as string)}
           alt="Underwater coral reef with tropical fish"
           className="w-full h-full object-cover"
         />
@@ -44,12 +46,12 @@ const Hero = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/shop">
+            <Link href="/shop">
               <Button variant="hero" size="xl">
                 Shop Now
               </Button>
             </Link>
-            <Link to="/contact">
+            <Link href="/contact">
               <Button variant="hero-outline" size="xl">
                 Contact Us
               </Button>

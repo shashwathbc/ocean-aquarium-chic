@@ -1,5 +1,5 @@
 import { Fish, Phone, MapPin, Mail, Instagram, Facebook, Youtube } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 const Footer = () => {
   return (
@@ -37,7 +37,7 @@ const Footer = () => {
               {["Home", "Shop", "Categories", "Contact"].map((item) => (
                 <Link
                   key={item}
-                  to={item === "Home" ? "/" : `/${item.toLowerCase()}`}
+                  href={item === "Home" ? "/" : `/${item.toLowerCase()}`}
                   className="text-sm text-secondary-foreground/70 hover:text-primary transition-colors"
                 >
                   {item}

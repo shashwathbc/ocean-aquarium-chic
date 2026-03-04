@@ -1,5 +1,7 @@
+"use client";
+
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 import categoryAquariums from "@/assets/category-aquariums.jpg";
 import categoryFish from "@/assets/category-fish.jpg";
@@ -46,11 +48,11 @@ const Categories = () => {
               transition={{ duration: 0.4, delay: i * 0.1 }}
             >
               <Link
-                to="/shop"
+                href="/shop"
                 className="group relative block aspect-[4/3] rounded-2xl overflow-hidden card-hover"
               >
                 <img
-                  src={cat.image}
+                  src={typeof cat.image === 'object' && 'src' in cat.image ? (cat.image as any).src : cat.image as string}
                   alt={cat.name}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   loading="lazy"

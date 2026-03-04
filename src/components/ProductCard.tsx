@@ -1,13 +1,15 @@
+"use client";
+
 import { ShoppingCart, Plus, Minus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { useCart } from "@/contexts/CartContext";
 
 interface Product {
   id: string;
   name: string;
   price: number;
-  image: string;
+  image: any;
   category: string;
 }
 
@@ -17,12 +19,12 @@ const ProductCard = ({ product }: { product: Product }) => {
 
   return (
     <Link
-      to={`/product/${product.id}`}
+      href={`/product/${product.id}`}
       className="group block rounded-2xl overflow-hidden bg-card card-hover"
     >
       <div className="relative aspect-square overflow-hidden">
         <img
-          src={product.image}
+          src={typeof product.image === 'object' && product.image !== null && 'src' in product.image ? (product.image as any).src : product.image as string}
           alt={product.name}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           loading="lazy"
