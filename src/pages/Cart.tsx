@@ -6,28 +6,10 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
 import { Button } from "@/components/ui/button";
-import { products } from "@/components/FeaturedProducts";
-
-const initialCart = [
-  { product: products[0], qty: 2 },
-  { product: products[3], qty: 1 },
-  { product: products[5], qty: 1 },
-];
+import { useCart } from "@/context/CartContext";
 
 const Cart = () => {
-  const [cart, setCart] = useState(initialCart);
-
-  const updateQty = (id: string, delta: number) => {
-    setCart((prev) =>
-      prev.map((item) =>
-        item.product.id === id ? { ...item, qty: Math.max(1, item.qty + delta) } : item
-      )
-    );
-  };
-
-  const remove = (id: string) => setCart((prev) => prev.filter((item) => item.product.id !== id));
-
-  const total = cart.reduce((sum, item) => sum + item.product.price * item.qty, 0);
+  const { cart, updateQty, remove, total } = useCart();
 
   return (
     <div className="min-h-screen">
