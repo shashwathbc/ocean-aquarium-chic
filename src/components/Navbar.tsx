@@ -7,7 +7,7 @@ import { Search, ShoppingCart, Menu, X, Sun, Moon, Fish } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "next-themes";
-import { useCart } from "@/contexts/CartContext";
+import { useCartStore } from "@/store/useCartStore";
 import { products } from "@/components/FeaturedProducts";
 
 const navLinks = [
@@ -18,7 +18,8 @@ const navLinks = [
 ];
 
 const Navbar = () => {
-  const { cartCount } = useCart();
+  const getCartCount = useCartStore((state) => state.getCartCount);
+  const cartCount = getCartCount();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);

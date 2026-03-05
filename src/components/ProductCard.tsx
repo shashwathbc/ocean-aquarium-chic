@@ -3,7 +3,7 @@
 import { ShoppingCart, Plus, Minus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useCart } from "@/contexts/CartContext";
+import { useCartStore } from "@/store/useCartStore";
 
 interface Product {
   id: string;
@@ -14,7 +14,7 @@ interface Product {
 }
 
 const ProductCard = ({ product }: { product: Product }) => {
-  const { cart, addToCart, updateQty, removeFromCart } = useCart();
+  const { cart, addToCart, updateQty, removeFromCart } = useCartStore();
   const cartItem = cart.find(item => item.product.id === product.id);
 
   return (

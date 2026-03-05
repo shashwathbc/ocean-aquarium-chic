@@ -6,11 +6,11 @@ import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
 import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
-import { useCart } from "@/contexts/CartContext";
+import { useCartStore } from "@/store/useCartStore";
 
 const Checkout = () => {
   const [submitted, setSubmitted] = useState(false);
-  const { clearCart } = useCart();
+  const clearCart = useCartStore((state) => state.clearCart);
 
   if (submitted) {
     return (

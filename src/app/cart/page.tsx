@@ -7,10 +7,10 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
 import { Button } from "@/components/ui/button";
-import { useCart } from "@/contexts/CartContext";
+import { useCartStore } from "@/store/useCartStore";
 
 const Cart = () => {
-  const { cart, updateQty, removeFromCart, cartTotal } = useCart();
+  const { cart, updateQty, removeFromCart, getCartTotal } = useCartStore();
 
   return (
     <div className="min-h-screen">
@@ -75,7 +75,7 @@ const Cart = () => {
                 <div className="flex justify-between items-center mb-4">
                   <span className="font-display font-semibold text-lg">Total</span>
                   <span className="font-display font-bold text-2xl text-primary">
-                    ₹{cartTotal.toLocaleString()}
+                    ₹{getCartTotal().toLocaleString()}
                   </span>
                 </div>
                 <Link href="/checkout">

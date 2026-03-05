@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import ProductCard from "@/components/ProductCard";
+import { useProducts } from "@/hooks/useProducts";
 
 import productBetta from "@/assets/product-betta.jpg";
 import productNeontetra from "@/assets/product-neontetra.jpg";
@@ -22,6 +23,8 @@ export const products = [
 ];
 
 const FeaturedProducts = () => {
+  const { data: fetchedProducts, isLoading, error } = useProducts();
+
   return (
     <section className="py-20 md:py-28 bg-muted/50">
       <div className="container mx-auto px-4">
@@ -40,19 +43,27 @@ const FeaturedProducts = () => {
           </h2>
         </motion.div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-          {products.map((product, i) => (
-            <motion.div
-              key={product.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.08 }}
-            >
-              <ProductCard product={product} />
-            </motion.div>
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="flex justify-center items-center py-20">
+            <span className="font-display text-muted-foreground animate-pulse">Loading amazing products...</span>
+          </div>
+        ) : error ? (
+          <div className="text-center text-destructive py-10">Failed to load products.</div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            {fetchedProducts?.map((product: any, i: number) => (
+              <motion.div
+                key={product._id || product.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.08 }}
+              >
+                <ProductCard product={product} />
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

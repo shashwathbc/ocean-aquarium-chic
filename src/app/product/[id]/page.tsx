@@ -5,7 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Minus, Plus, ShoppingCart, ArrowLeft } from "lucide-react";
 import { useState } from "react";
-import { useCart } from "@/contexts/CartContext";
+import { useCartStore } from "@/store/useCartStore";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
@@ -19,7 +19,7 @@ const ProductDetail = () => {
   const id = typeof params?.id === 'string' ? params.id : Array.isArray(params?.id) ? params.id[0] : '';
   const product = products.find((p) => p.id === id);
   const [qty, setQty] = useState(1);
-  const { cart, addToCart } = useCart();
+  const { cart, addToCart } = useCartStore();
   const { toast } = useToast();
   const router = useRouter();
 
