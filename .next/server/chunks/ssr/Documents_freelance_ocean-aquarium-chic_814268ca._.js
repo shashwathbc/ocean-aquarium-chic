@@ -1,3 +1,0 @@
-module.exports=[79022,a=>{a.n(a.i(6160))},70287,a=>{a.n(a.i(83027))},16992,a=>{a.n(a.i(61077))},44208,a=>{a.n(a.i(88430))},38330,a=>{a.n(a.i(7343))},88430,(a,b,c)=>{"use strict";Object.defineProperty(c,"__esModule",{value:!0}),Object.defineProperty(c,"default",{enumerable:!0,get:function(){return f}});let d=a.r(4831),e=a.r(21207);function f(){return(0,d.jsx)(e.HTTPAccessErrorFallback,{status:401,message:"You're not authorized to access this page."})}("function"==typeof c.default||"object"==typeof c.default&&null!==c.default)&&void 0===c.default.__esModule&&(Object.defineProperty(c.default,"__esModule",{value:!0}),Object.assign(c.default,c),b.exports=c.default)}];
-
-//# sourceMappingURL=Documents_freelance_ocean-aquarium-chic_814268ca._.js.map

@@ -45,6 +45,40 @@ export class ProductController {
             );
         }
     }
+    async updateProduct(req: NextRequest, { params }: { params: { id: string } }) {
+        try {
+            const body = await req.json();
+            const updatedProduct = await productService.updateProduct(params.id, body);
+            return NextResponse.json({ success: true, data: updatedProduct }, { status: 200 });
+        } catch (error: any) {
+            if (error.name === "ValidationError") {
+                return NextResponse.json(
+                    { success: false, errors: error.errors },
+                    { status: 400 }
+                );
+            }
+            const status = error.message === "Product not found" ? 404 :
+                error.message === "Invalid product ID format" ? 400 : 500;
+            return NextResponse.json(
+                { success: false, error: error.message || "Failed to update product" },
+                { status }
+            );
+        }
+    }
+
+    async deleteProduct(req: NextRequest, { params }: { params: { id: string } }) {
+        try {
+            await productService.deleteProduct(params.id);
+            return NextResponse.json({ success: true, message: "Product deleted successfully" }, { status: 200 });
+        } catch (error: any) {
+            const status = error.message === "Product not found" ? 404 :
+                error.message === "Invalid product ID format" ? 400 : 500;
+            return NextResponse.json(
+                { success: false, error: error.message || "Failed to delete product" },
+                { status }
+            );
+        }
+    }
 }
 
 export const productController = new ProductController();

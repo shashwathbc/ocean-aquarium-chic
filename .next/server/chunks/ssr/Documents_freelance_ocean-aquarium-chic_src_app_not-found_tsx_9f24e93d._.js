@@ -1,3 +1,0 @@
-module.exports=[83027,a=>{"use strict";var b=a.i(4831);function c(){return(0,b.jsx)("div",{className:"flex min-h-screen items-center justify-center bg-muted",children:(0,b.jsxs)("div",{className:"text-center",children:[(0,b.jsx)("h1",{className:"mb-4 text-4xl font-bold",children:"404"}),(0,b.jsx)("p",{className:"mb-4 text-xl text-muted-foreground",children:"Oops! Page not found"}),(0,b.jsx)("a",{href:"/",className:"text-primary underline hover:text-primary/90",children:"Return to Home"})]})})}a.s(["default",()=>c])}];
-
-//# sourceMappingURL=Documents_freelance_ocean-aquarium-chic_src_app_not-found_tsx_9f24e93d._.js.map

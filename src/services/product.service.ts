@@ -11,6 +11,16 @@ const productSchema = yup.object().shape({
     inStock: yup.boolean().optional().default(true),
 });
 
+// Yup Validation Schema for updating a product (all optional)
+const updateProductSchema = yup.object().shape({
+    name: yup.string().optional(),
+    price: yup.number().positive("Price must be positive").optional(),
+    image: yup.string().optional(),
+    category: yup.string().optional(),
+    description: yup.string().optional(),
+    inStock: yup.boolean().optional(),
+});
+
 export class ProductService {
     async getAllProducts() {
         return await productRepository.findAll();
@@ -36,6 +46,31 @@ export class ProductService {
     async seedProducts(products: any[]) {
         // Basic validation could be added here, bypassing for seeding demo
         return await productRepository.insertMany(products);
+    }
+
+    async updateProduct(id: string, data: any) {
+        if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+            throw new Error("Invalid product ID format");
+        }
+        // Validate partial data using yup
+        const validatedData = await updateProductSchema.validate(data, { abortEarly: false, stripUnknown: true });
+
+        const updatedProduct = await productRepository.update(id, validatedData);
+        if (!updatedProduct) {
+            throw new Error("Product not found");
+        }
+        return updatedProduct;
+    }
+
+    async deleteProduct(id: string) {
+        if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+            throw new Error("Invalid product ID format");
+        }
+        const success = await productRepository.delete(id);
+        if (!success) {
+            throw new Error("Product not found");
+        }
+        return true;
     }
 }
 

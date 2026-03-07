@@ -26,6 +26,19 @@ export class ProductRepository {
         const insertedProducts = await Product.insertMany(products);
         return JSON.parse(JSON.stringify(insertedProducts));
     }
+
+    async update(id: string, productData: Partial<IProduct>): Promise<IProduct | null> {
+        await dbConnect();
+        const product = await Product.findByIdAndUpdate(id, productData, { new: true }).lean();
+        if (!product) return null;
+        return JSON.parse(JSON.stringify(product));
+    }
+
+    async delete(id: string): Promise<boolean> {
+        await dbConnect();
+        const result = await Product.findByIdAndDelete(id);
+        return result !== null;
+    }
 }
 
 export const productRepository = new ProductRepository();

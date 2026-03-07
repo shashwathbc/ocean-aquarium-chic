@@ -1,3 +1,0 @@
-module.exports=[74577,(a,b,c)=>{let{createClientModuleProxy:d}=a.r(53645);a.n(d("[project]/Documents/freelance/ocean-aquarium-chic/node_modules/next/dist/client/components/builtin/global-error.js <module evaluation>"))},13307,(a,b,c)=>{let{createClientModuleProxy:d}=a.r(53645);a.n(d("[project]/Documents/freelance/ocean-aquarium-chic/node_modules/next/dist/client/components/builtin/global-error.js"))},7343,a=>{"use strict";a.i(74577);var b=a.i(13307);a.n(b)}];
-
-//# sourceMappingURL=0bd67_next_dist_client_components_builtin_global-error_ccb0fb59.js.map
