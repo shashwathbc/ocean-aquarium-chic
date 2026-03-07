@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
@@ -33,6 +33,26 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
 
     const [file, setFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(initialData?.image || null);
+
+    const [categories, setCategories] = useState<{ _id: string; name: string }[]>([]);
+    const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+
+    useEffect(() => {
+        async function fetchCategories() {
+            try {
+                const res = await fetch("/api/categories");
+                const json = await res.json();
+                if (json.success) {
+                    setCategories(json.data);
+                }
+            } catch (err) {
+                console.error("Failed to fetch categories", err);
+            } finally {
+                setIsLoadingCategories(false);
+            }
+        }
+        fetchCategories();
+    }, []);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const selected = e.target.files?.[0];
@@ -143,14 +163,15 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                         required
                         value={formData.category}
                         onChange={handleInputChange}
+                        disabled={isLoadingCategories}
                         className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     >
-                        <option value="">Select Category</option>
-                        <option value="Aquariums">Aquariums</option>
-                        <option value="Fish">Fish</option>
-                        <option value="Plants">Plants</option>
-                        <option value="Decorations">Decorations</option>
-                        <option value="Accessories">Accessories</option>
+                        <option value="">{isLoadingCategories ? "Loading categories..." : "Select Category"}</option>
+                        {categories.map((cat) => (
+                            <option key={cat._id} value={cat.name}>
+                                {cat.name}
+                            </option>
+                        ))}
                     </select>
                 </div>
 

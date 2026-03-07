@@ -57,6 +57,32 @@ export default function ProductsPage() {
         }
     };
 
+    const handleStatusChange = async (id: string, newStatus: boolean) => {
+        try {
+            // Optimistic update
+            setProducts((prev) =>
+                prev.map((p) => p._id === id ? { ...p, inStock: newStatus } : p)
+            );
+
+            const res = await fetch(`/api/products/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ inStock: newStatus }),
+            });
+            const data = await res.json();
+            if (!data.success) {
+                // Revert if failed
+                fetchProducts();
+                alert(data.error || "Failed to update status");
+            }
+        } catch (err) {
+            console.error("Status update error", err);
+            // Revert
+            fetchProducts();
+            alert("Something went wrong while updating status");
+        }
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -121,12 +147,25 @@ export default function ProductsPage() {
                                         <td className="px-6 py-4 text-gray-600 dark:text-gray-400">{product.category}</td>
                                         <td className="px-6 py-4 font-medium text-teal-600 dark:text-teal-400">${product.price.toFixed(2)}</td>
                                         <td className="px-6 py-4">
-                                            <span className={`px-2.5 py-1 text-xs font-medium rounded-full ${product.inStock
-                                                    ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                                                    : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                                                }`}>
-                                                {product.inStock ? "In Stock" : "Out of Stock"}
-                                            </span>
+                                            <div className="relative inline-flex">
+                                                <select
+                                                    value={product.inStock ? "true" : "false"}
+                                                    onChange={(e) => handleStatusChange(product._id, e.target.value === "true")}
+                                                    className={`appearance-none outline-none border-none cursor-pointer pl-3 pr-6 py-1 text-xs font-bold rounded-full focus:ring-2 focus:ring-offset-1 focus:ring-offset-background focus:ring-primary/50 transition-colors ${product.inStock
+                                                            ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/60"
+                                                            : "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/60"
+                                                        }`}
+                                                >
+                                                    <option value="true" className="bg-background text-foreground text-sm font-medium">In Stock</option>
+                                                    <option value="false" className="bg-background text-foreground text-sm font-medium">Out of Stock</option>
+                                                </select>
+                                                {/* Down chevron icon overlay to indicate dropdown */}
+                                                <div className="pointer-events-none absolute inset-y-0 right-1.5 flex items-center">
+                                                    <svg className={`h-3 w-3 ${product.inStock ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                                    </svg>
+                                                </div>
+                                            </div>
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex justify-end gap-3">
