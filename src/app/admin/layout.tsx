@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { ReactNode } from "react";
 import {
     LayoutDashboard,
@@ -28,6 +28,20 @@ import {
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
     const pathname = usePathname();
+    const router = useRouter();
+
+    const handleLogout = async () => {
+        try {
+            const res = await fetch("/api/auth/logout", { method: "POST" });
+            if (res.ok) {
+                localStorage.removeItem("isAuthenticated");
+                router.push("/");
+                router.refresh();
+            }
+        } catch (error) {
+            console.error("Logout failed:", error);
+        }
+    };
 
     const menuItems = [
         {
@@ -44,9 +58,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         {
             section: "Product", items: [
                 { name: "Add Products", href: "/admin/products/new", icon: PlusCircle },
-                { name: "Product Media", href: "/admin/products/media", icon: ImageIcon },
                 { name: "Product List", href: "/admin/products", icon: List },
                 { name: "Product Reviews", href: "/admin/reviews", icon: MessageSquare },
+                { name: "Enquiries", href: "/admin/enquiries", icon: MessageSquare },
             ]
         },
         {
@@ -109,7 +123,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
                 {/* Bottom User Area */}
                 <div className="flex-shrink-0 p-4 border-t border-gray-100 dark:border-gray-800">
-                    <div className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition cursor-pointer mb-2">
+                    <div
+                        onClick={handleLogout}
+                        className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition cursor-pointer mb-2"
+                    >
                         <div className="flex items-center gap-3">
                             <img src="https://i.pravatar.cc/150?u=admin" alt="Admin" className="w-10 h-10 rounded-full bg-gray-200" />
                             <div className="overflow-hidden">

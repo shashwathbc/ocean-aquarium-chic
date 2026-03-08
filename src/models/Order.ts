@@ -14,8 +14,12 @@ export interface IOrder extends Document {
         image?: string;
     }[];
     totalAmount: number;
+    couponCode?: string;
+    discountAmount?: number;
     status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
     paymentMethod: string;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 const OrderSchema: Schema = new Schema(
@@ -39,6 +43,8 @@ const OrderSchema: Schema = new Schema(
             }
         ],
         totalAmount: { type: Number, required: true },
+        couponCode: { type: String, required: false },
+        discountAmount: { type: Number, required: false },
         status: {
             type: String,
             enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],

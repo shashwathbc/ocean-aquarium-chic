@@ -19,6 +19,8 @@ const orderSchema = yup.object().shape({
         })
     ).required().min(1, "Order must contain at least one item"),
     totalAmount: yup.number().required(),
+    couponCode: yup.string().optional(),
+    discountAmount: yup.number().optional(),
     paymentMethod: yup.string().default("COD"),
     status: yup.string().oneOf(['pending', 'processing', 'shipped', 'delivered', 'cancelled']).default('pending')
 });
@@ -59,6 +61,15 @@ export class OrderService {
             { upsert: true, new: true }
         );
 
+        // If a coupon code is passed, increment its usage count
+        if (orderPayload.couponCode) {
+            const Coupon = mongoose.models.Coupon || mongoose.model("Coupon");
+            await Coupon.findOneAndUpdate(
+                { code: orderPayload.couponCode.toUpperCase() },
+                { $inc: { usedCount: 1 } }
+            );
+        }
+
         return await orderRepository.create(orderPayload as any);
     }
 
@@ -78,6 +89,11 @@ export class OrderService {
             throw new Error("Order not found");
         }
         return updatedOrder;
+    }
+
+    async getOrdersByPhone(phone: string) {
+        if (!phone) throw new Error("Phone number is required");
+        return await orderRepository.findByCustomerPhone(phone);
     }
 }
 

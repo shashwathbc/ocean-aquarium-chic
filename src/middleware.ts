@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 
 // Define the protected routes
-const protectedRoutes = ['/admins'];
+const protectedRoutes = ['/admin'];
 const authRoutes = ['/login', '/signup'];
 
 const JWT_SECRET = process.env.JWT_SECRET || "ocean-aquarium-super-secret-key-123";

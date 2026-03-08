@@ -47,6 +47,23 @@ export class OrderController {
             );
         }
     }
+
+    async getOrdersByPhone(req: NextRequest) {
+        try {
+            const { searchParams } = new URL(req.url);
+            const phone = searchParams.get("phone");
+            if (!phone) {
+                return NextResponse.json({ success: false, error: "Phone number is required" }, { status: 400 });
+            }
+            const orders = await orderService.getOrdersByPhone(phone);
+            return NextResponse.json({ success: true, data: orders }, { status: 200 });
+        } catch (error: any) {
+            return NextResponse.json(
+                { success: false, error: error.message || "Failed to fetch orders" },
+                { status: 500 }
+            );
+        }
+    }
 }
 
 export const orderController = new OrderController();

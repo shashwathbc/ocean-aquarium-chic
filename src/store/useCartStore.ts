@@ -45,7 +45,7 @@ export const useCartStore = create<CartState>()(
                         return {
                             cart: state.cart.map((item) =>
                                 (item.product._id || item.product.id) === productId
-                                    ? { ...item, qty: item.qty + qty }
+                                    ? { ...item, qty: qty } // Set precisely to the selected quantity
                                     : item
                             ),
                         };

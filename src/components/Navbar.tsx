@@ -15,12 +15,13 @@ const navLinks = [
   { label: "Home", to: "/" },
   { label: "Shop", to: "/shop" },
   { label: "Categories", to: "/categories" },
+  { label: "My Orders", to: "/my-orders" },
   { label: "Contact", to: "/contact" },
 ];
 
 const Navbar = () => {
-  const getCartCount = useCartStore((state) => state.getCartCount);
-  const cartCount = getCartCount();
+  const cart = useCartStore((state) => state.cart);
+  const cartCount = cart.reduce((sum: number, item: any) => sum + item.qty, 0);
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
