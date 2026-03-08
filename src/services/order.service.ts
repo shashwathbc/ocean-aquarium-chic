@@ -1,6 +1,7 @@
 import { orderRepository } from "@/repositories/order.repository";
 import * as yup from "yup";
 import mongoose from "mongoose";
+import Customer from "@/models/Customer";
 
 const orderSchema = yup.object().shape({
     customerDetails: yup.object().shape({
@@ -41,6 +42,22 @@ export class OrderService {
             ...validatedData,
             items: formattedItems
         };
+
+        // Organic Customer Data Harvesting
+        await Customer.findOneAndUpdate(
+            { phone: orderPayload.customerDetails.phone },
+            {
+                $set: {
+                    name: orderPayload.customerDetails.name,
+                    address: orderPayload.customerDetails.address
+                },
+                $inc: {
+                    totalOrders: 1,
+                    totalSpent: orderPayload.totalAmount
+                }
+            },
+            { upsert: true, new: true }
+        );
 
         return await orderRepository.create(orderPayload as any);
     }
