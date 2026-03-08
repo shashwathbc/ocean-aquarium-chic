@@ -10,6 +10,7 @@ type ProductFormProps = {
         name: string;
         price: number;
         category: string;
+        brand?: string;
         description: string;
         image: string;
         inStock: boolean;
@@ -26,6 +27,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         name: initialData?.name || "",
         price: initialData?.price || 0,
         category: initialData?.category || "",
+        brand: initialData?.brand || "",
         description: initialData?.description || "",
         image: initialData?.image || "",
         inStock: initialData?.inStock ?? true,
@@ -36,6 +38,9 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
 
     const [categories, setCategories] = useState<{ _id: string; name: string }[]>([]);
     const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+
+    const [brands, setBrands] = useState<{ _id: string; name: string; isActive: boolean }[]>([]);
+    const [isLoadingBrands, setIsLoadingBrands] = useState(true);
 
     useEffect(() => {
         async function fetchCategories() {
@@ -51,7 +56,22 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                 setIsLoadingCategories(false);
             }
         }
+        async function fetchBrands() {
+            try {
+                const res = await fetch("/api/brands");
+                const json = await res.json();
+                if (json.success) {
+                    // Filter out inactive brands from selection options
+                    setBrands(json.data.filter((b: any) => b.isActive));
+                }
+            } catch (err) {
+                console.error("Failed to fetch brands", err);
+            } finally {
+                setIsLoadingBrands(false);
+            }
+        }
         fetchCategories();
+        fetchBrands();
     }, []);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -95,7 +115,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
             }
 
             // Now save the product
-            const payload = { ...formData, image: imageUrl };
+            const payload = { ...formData, image: imageUrl, brand: formData.brand || undefined };
 
             const endpoint = isEditMode ? `/api/products/${initialData?._id}` : "/api/products";
             const method = isEditMode ? "PUT" : "POST";
@@ -170,6 +190,24 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                         {categories.map((cat) => (
                             <option key={cat._id} value={cat.name}>
                                 {cat.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Brand</label>
+                    <select
+                        name="brand"
+                        value={formData.brand}
+                        onChange={handleInputChange}
+                        disabled={isLoadingBrands}
+                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    >
+                        <option value="">{isLoadingBrands ? "Loading brands..." : "Select Brand (Optional)"}</option>
+                        {brands.map((b) => (
+                            <option key={b._id} value={b.name}>
+                                {b.name}
                             </option>
                         ))}
                     </select>

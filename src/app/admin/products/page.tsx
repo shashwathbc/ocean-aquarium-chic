@@ -9,6 +9,7 @@ type Product = {
     name: string;
     price: number;
     category: string;
+    brand?: string;
     image: string;
     inStock: boolean;
 };
@@ -110,7 +111,7 @@ export default function ProductsPage() {
                         <thead className="text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50 uppercase">
                             <tr>
                                 <th className="px-6 py-4 font-medium">Product</th>
-                                <th className="px-6 py-4 font-medium">Category</th>
+                                <th className="px-6 py-4 font-medium">Category & Brand</th>
                                 <th className="px-6 py-4 font-medium">Price</th>
                                 <th className="px-6 py-4 font-medium">Status</th>
                                 <th className="px-6 py-4 font-medium text-right">Actions</th>
@@ -144,7 +145,12 @@ export default function ProductsPage() {
                                             </div>
                                             <span className="font-medium text-gray-800 dark:text-gray-200">{product.name}</span>
                                         </td>
-                                        <td className="px-6 py-4 text-gray-600 dark:text-gray-400">{product.category}</td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex flex-col">
+                                                <span className="text-gray-900 dark:text-gray-100 font-medium">{product.category}</span>
+                                                {product.brand && <span className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{product.brand}</span>}
+                                            </div>
+                                        </td>
                                         <td className="px-6 py-4 font-medium text-teal-600 dark:text-teal-400">${product.price.toFixed(2)}</td>
                                         <td className="px-6 py-4">
                                             <div className="relative inline-flex">
@@ -152,8 +158,8 @@ export default function ProductsPage() {
                                                     value={product.inStock ? "true" : "false"}
                                                     onChange={(e) => handleStatusChange(product._id, e.target.value === "true")}
                                                     className={`appearance-none outline-none border-none cursor-pointer pl-3 pr-6 py-1 text-xs font-bold rounded-full focus:ring-2 focus:ring-offset-1 focus:ring-offset-background focus:ring-primary/50 transition-colors ${product.inStock
-                                                            ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/60"
-                                                            : "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/60"
+                                                        ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/60"
+                                                        : "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/60"
                                                         }`}
                                                 >
                                                     <option value="true" className="bg-background text-foreground text-sm font-medium">In Stock</option>

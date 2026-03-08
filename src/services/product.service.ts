@@ -7,6 +7,7 @@ const productSchema = yup.object().shape({
     price: yup.number().positive("Price must be positive").required("Price is required"),
     image: yup.string().required("Image URL or path is required"),
     category: yup.string().required("Category is required"),
+    brand: yup.string().optional(),
     description: yup.string().optional(),
     inStock: yup.boolean().optional().default(true),
 });
@@ -17,6 +18,7 @@ const updateProductSchema = yup.object().shape({
     price: yup.number().positive("Price must be positive").optional(),
     image: yup.string().optional(),
     category: yup.string().optional(),
+    brand: yup.string().optional(),
     description: yup.string().optional(),
     inStock: yup.boolean().optional(),
 });
@@ -39,7 +41,10 @@ export class ProductService {
 
     async createProduct(data: any) {
         // Validate data using yup
-        const validatedData = await productSchema.validate(data, { abortEarly: false });
+        const validatedData = await productSchema.validate(data, { abortEarly: false, stripUnknown: false });
+        // Manually ensure brand is included if present, sometimes Yup drops optionals
+        if (data.brand) validatedData.brand = data.brand;
+        console.log("FINAL CREATE PAYLOAD BEFORE REP:", validatedData);
         return await productRepository.create(validatedData);
     }
 
@@ -53,7 +58,9 @@ export class ProductService {
             throw new Error("Invalid product ID format");
         }
         // Validate partial data using yup
-        const validatedData = await updateProductSchema.validate(data, { abortEarly: false, stripUnknown: true });
+        const validatedData = await updateProductSchema.validate(data, { abortEarly: false, stripUnknown: false });
+        if (data.brand !== undefined) validatedData.brand = data.brand;
+        console.log("FINAL UPDATE PAYLOAD BEFORE REP:", validatedData);
 
         const updatedProduct = await productRepository.update(id, validatedData);
         if (!updatedProduct) {
