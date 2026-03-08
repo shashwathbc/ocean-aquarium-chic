@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { useProducts } from "@/hooks/useProducts";
 import ProductCard from "@/components/ProductCard";
 import { useToast } from "@/components/ui/use-toast";
+import ProductReviews from "@/components/ProductReviews";
 
 const ProductDetail = () => {
   const params = useParams();
@@ -183,6 +184,11 @@ const ProductDetail = () => {
                 </Link>
               </div>
             </motion.div>
+          </div>
+
+          {/* Product Reviews Section */}
+          <div className="mt-8">
+            <ProductReviews productId={productId} />
           </div>
 
           {/* Related */}

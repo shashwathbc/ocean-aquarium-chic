@@ -46,7 +46,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 { name: "Add Products", href: "/admin/products/new", icon: PlusCircle },
                 { name: "Product Media", href: "/admin/products/media", icon: ImageIcon },
                 { name: "Product List", href: "/admin/products", icon: List },
-                { name: "Product Reviews", href: "/admin/products/reviews", icon: MessageSquare },
+                { name: "Product Reviews", href: "/admin/reviews", icon: MessageSquare },
             ]
         },
         {

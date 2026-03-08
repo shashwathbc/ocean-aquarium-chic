@@ -5,12 +5,65 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
 import { Button } from "@/components/ui/button";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Loader2 } from "lucide-react";
 import { useCartStore } from "@/store/useCartStore";
+import { useToast } from "@/components/ui/use-toast";
 
 const Checkout = () => {
   const [submitted, setSubmitted] = useState(false);
-  const clearCart = useCartStore((state) => state.clearCart);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Form State
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+
+  const { cart, clearCart, getCartTotal } = useCartStore();
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (cart.length === 0) {
+      toast({ title: "Cart is empty", variant: "destructive" });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const orderPayload = {
+        customerDetails: { name, phone, address },
+        items: cart.map(item => ({
+          productId: item.product.id,
+          name: item.product.name,
+          price: item.product.price,
+          quantity: item.qty,
+          image: item.product.images?.length ? item.product.images[0] : item.product.image
+        })),
+        totalAmount: getCartTotal(),
+        paymentMethod: "COD"
+      };
+
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderPayload)
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        clearCart();
+        setSubmitted(true);
+      } else {
+        toast({ title: "Checkout Failed", description: data.error, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Error processing checkout", variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   if (submitted) {
     return (
@@ -45,25 +98,18 @@ const Checkout = () => {
             Checkout
           </motion.h1>
 
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              clearCart();
-              setSubmitted(true);
-            }}
-            className="space-y-5"
-          >
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="font-display font-semibold text-sm mb-1.5 block">Full Name</label>
-              <input required className="w-full px-4 py-3 rounded-xl border border-input bg-background font-body focus:ring-2 focus:ring-ring outline-none" placeholder="Your name" />
+              <input required value={name} onChange={(e) => setName(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-input bg-background font-body focus:ring-2 focus:ring-ring outline-none transition-all" placeholder="Your name" />
             </div>
             <div>
               <label className="font-display font-semibold text-sm mb-1.5 block">Phone Number</label>
-              <input required className="w-full px-4 py-3 rounded-xl border border-input bg-background font-body focus:ring-2 focus:ring-ring outline-none" placeholder="+91 98765 43210" />
+              <input required value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-input bg-background font-body focus:ring-2 focus:ring-ring outline-none transition-all" placeholder="+91 98765 43210" />
             </div>
             <div>
               <label className="font-display font-semibold text-sm mb-1.5 block">Delivery Address</label>
-              <textarea required rows={3} className="w-full px-4 py-3 rounded-xl border border-input bg-background font-body focus:ring-2 focus:ring-ring outline-none resize-none" placeholder="Full address in Bangalore" />
+              <textarea required value={address} onChange={(e) => setAddress(e.target.value)} rows={3} className="w-full px-4 py-3 rounded-xl border border-input bg-background font-body focus:ring-2 focus:ring-ring outline-none resize-none transition-all" placeholder="Full address in Bangalore" />
             </div>
 
             <div className="glass rounded-2xl p-5">
@@ -76,8 +122,14 @@ const Checkout = () => {
               </div>
             </div>
 
-            <Button type="submit" variant="default" size="lg" className="w-full">
-              Place Order
+            <Button type="submit" variant="default" size="lg" className="w-full py-6 text-lg font-bold" disabled={isLoading || cart.length === 0}>
+              {isLoading ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin" /> Processing Order...
+                </span>
+              ) : (
+                `Place Order (₹${getCartTotal().toLocaleString()})`
+              )}
             </Button>
           </form>
         </div>
