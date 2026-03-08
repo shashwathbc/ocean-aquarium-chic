@@ -1,28 +1,39 @@
+"use client";
+
 import { ShoppingCart, Plus, Minus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { useCart } from "@/contexts/CartContext";
+import Link from "next/link";
+import { useCartStore } from "@/store/useCartStore";
 
 interface Product {
   id: string;
   name: string;
   price: number;
-  image: string;
+  image: any;
+  images?: string[];
   category: string;
+  inStock: boolean;
+  stockCount?: number;
 }
 
 const ProductCard = ({ product }: { product: Product }) => {
-  const { cart, addToCart, updateQty, removeFromCart } = useCart();
+  const { cart, addToCart, updateQty, removeFromCart } = useCartStore();
   const cartItem = cart.find(item => item.product.id === product.id);
 
   return (
     <Link
-      to={`/product/${product.id}`}
+      href={`/product/${product.id}`}
       className="group block rounded-2xl overflow-hidden bg-card card-hover"
     >
       <div className="relative aspect-square overflow-hidden">
         <img
-          src={product.image}
+          src={
+            (product.images && product.images.length > 0)
+              ? product.images[0]
+              : (typeof product.image === 'object' && product.image !== null && 'src' in product.image
+                ? (product.image as any).src
+                : product.image as string) || "/assets/placeholder.png"
+          }
           alt={product.name}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           loading="lazy"

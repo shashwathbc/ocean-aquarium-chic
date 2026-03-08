@@ -1,8 +1,17 @@
 import { MapPin, Phone, Navigation } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { useSettings } from "@/hooks/useSettings";
 
 const StoreLocation = () => {
+  const { data: settings } = useSettings();
+  const address = settings?.address || "123 MG Road, Near Brigade Road Junction, Bangalore, Karnataka 560001";
+  const phone = settings?.phone || "+91 98765 43210";
+  const directionsUrl = settings?.mapLocation || "https://www.google.com/maps/dir//12.9715987,77.5945627";
+
+  // Use our internal resolver to unpack shortlinks natively into the iframe
+  const mapEmbedUrl = `/api/resolve-map?url=${encodeURIComponent(settings?.mapLocation || "")}&address=${encodeURIComponent(address)}`;
+
   return (
     <section className="py-20 md:py-28 bg-muted/50">
       <div className="container mx-auto px-4">
@@ -31,14 +40,14 @@ const StoreLocation = () => {
             className="rounded-2xl overflow-hidden shadow-lg min-h-[350px]"
           >
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3887.985594859498!2d77.5945627!3d12.9715987!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTLCsDU4JzE3LjgiTiA3N8KwMzUnNDAuNCJF!5e0!3m2!1sen!2sin!4v1234567890"
+              src={mapEmbedUrl}
               width="100%"
               height="100%"
               style={{ border: 0, minHeight: 350 }}
               allowFullScreen
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-              title="Aquarium World - Bangalore Store Location"
+              title={`${settings?.websiteName || "Aquarium World"} - Store Location`}
             />
           </motion.div>
 
@@ -51,7 +60,7 @@ const StoreLocation = () => {
             className="glass rounded-2xl p-8 md:p-10 flex flex-col justify-center"
           >
             <h3 className="font-display font-bold text-2xl mb-6">
-              Aquarium World – Bangalore
+              {settings?.websiteName || "Aquarium World"} – Bangalore
             </h3>
 
             <div className="space-y-5 mb-8">
@@ -61,10 +70,8 @@ const StoreLocation = () => {
                 </div>
                 <div>
                   <p className="font-display font-semibold text-sm">Address</p>
-                  <p className="text-muted-foreground text-sm">
-                    123 MG Road, Near Brigade Road Junction,
-                    <br />
-                    Bangalore, Karnataka 560001
+                  <p className="text-muted-foreground text-sm whitespace-pre-line">
+                    {address}
                   </p>
                 </div>
               </div>
@@ -75,13 +82,13 @@ const StoreLocation = () => {
                 </div>
                 <div>
                   <p className="font-display font-semibold text-sm">Phone</p>
-                  <p className="text-muted-foreground text-sm">+91 98765 43210</p>
+                  <p className="text-muted-foreground text-sm">{phone}</p>
                 </div>
               </div>
             </div>
 
             <a
-              href="https://www.google.com/maps/dir//12.9715987,77.5945627"
+              href={directionsUrl}
               target="_blank"
               rel="noopener noreferrer"
             >

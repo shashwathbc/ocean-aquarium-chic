@@ -1,7 +1,12 @@
+"use client";
+
 import { Fish, Phone, MapPin, Mail, Instagram, Facebook, Youtube } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
+import { useSettings } from "@/hooks/useSettings";
 
 const Footer = () => {
+  const { data: settings } = useSettings();
+
   return (
     <footer className="bg-secondary text-secondary-foreground">
       <div className="container mx-auto px-4 py-16">
@@ -10,7 +15,7 @@ const Footer = () => {
           <div>
             <div className="flex items-center gap-2 mb-4">
               <Fish className="h-6 w-6 text-primary" />
-              <span className="font-display font-bold text-lg">Aquarium World</span>
+              <span className="font-display font-bold text-lg">{settings?.websiteName || "Aquarium World"}</span>
             </div>
             <p className="text-secondary-foreground/70 text-sm leading-relaxed mb-4">
               Bangalore's premium destination for exotic fish, stunning aquariums, and everything aquatic.
@@ -37,7 +42,7 @@ const Footer = () => {
               {["Home", "Shop", "Categories", "Contact"].map((item) => (
                 <Link
                   key={item}
-                  to={item === "Home" ? "/" : `/${item.toLowerCase()}`}
+                  href={item === "Home" ? "/" : `/${item.toLowerCase()}`}
                   className="text-sm text-secondary-foreground/70 hover:text-primary transition-colors"
                 >
                   {item}
@@ -68,11 +73,11 @@ const Footer = () => {
             <div className="flex flex-col gap-3">
               <div className="flex items-start gap-3 text-sm text-secondary-foreground/70">
                 <MapPin className="h-4 w-4 mt-0.5 text-primary shrink-0" />
-                <span>123 MG Road, Bangalore, Karnataka 560001, India</span>
+                <span>{settings?.address || "123 MG Road, Bangalore, Karnataka 560001, India"}</span>
               </div>
               <div className="flex items-center gap-3 text-sm text-secondary-foreground/70">
                 <Phone className="h-4 w-4 text-primary shrink-0" />
-                <span>+91 98765 43210</span>
+                <span>{settings?.phone || "+91 98765 43210"}</span>
               </div>
               <div className="flex items-center gap-3 text-sm text-secondary-foreground/70">
                 <Mail className="h-4 w-4 text-primary shrink-0" />
@@ -83,7 +88,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-secondary-foreground/10 mt-12 pt-6 text-center text-sm text-secondary-foreground/50">
-          © 2026 Aquarium World. All rights reserved. Bangalore, India.
+          © {new Date().getFullYear()} {settings?.websiteName || "Aquarium World"}. All rights reserved. Bangalore, India.
         </div>
       </div>
     </footer>
