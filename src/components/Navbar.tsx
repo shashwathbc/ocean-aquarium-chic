@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "next-themes";
 import { useCartStore } from "@/store/useCartStore";
-import { products } from "@/components/FeaturedProducts";
+import { useProducts } from "@/hooks/useProducts";
 
 const navLinks = [
   { label: "Home", to: "/" },
@@ -25,7 +25,10 @@ const Navbar = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<typeof products>([]);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+
+  const { data: fetchedProducts } = useProducts();
+  const products = fetchedProducts || [];
 
   const searchRef = useRef<HTMLDivElement>(null);
   const { theme, setTheme } = useTheme();
@@ -46,9 +49,9 @@ const Navbar = () => {
       return;
     }
     const lowerQuery = debouncedQuery.toLowerCase();
-    const results = products.filter(p => p.name.toLowerCase().includes(lowerQuery) || p.category.toLowerCase().includes(lowerQuery));
+    const results = products.filter((p: any) => p.name.toLowerCase().includes(lowerQuery) || p.category.toLowerCase().includes(lowerQuery));
     setSearchResults(results);
-  }, [debouncedQuery]);
+  }, [debouncedQuery, products]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -128,9 +131,9 @@ const Navbar = () => {
                         <div className="flex flex-col gap-2">
                           {searchResults.map(p => (
                             <div
-                              key={p.id}
+                              key={p.id || p._id}
                               className="flex items-center gap-3 p-2 hover:bg-muted rounded-lg cursor-pointer transition-colors"
-                              onClick={() => { router.push(`/product/${p.id}`); setSearchOpen(false); }}
+                              onClick={() => { router.push(`/product/${p.id || p._id}`); setSearchOpen(false); }}
                             >
                               <img src={typeof p.image === 'object' && p.image !== null && 'src' in p.image ? (p.image as any).src : p.image as string} alt={p.name} className="w-12 h-12 rounded-md object-cover flex-shrink-0 shadow-sm" />
                               <div className="min-w-0">

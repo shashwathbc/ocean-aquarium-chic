@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { productService } from "@/services/product.service";
-import { products as staticProducts } from "@/components/FeaturedProducts";
+
+const staticProducts = [
+    { name: "Red Betta Fish", price: 499, image: "/assets/product-betta.jpg", category: "Exotic Fish" },
+    { name: "Neon Tetra (Pack of 10)", price: 350, image: "/assets/product-neontetra.jpg", category: "Exotic Fish" },
+    { name: "Clownfish Pair", price: 1200, image: "/assets/product-clownfish.jpg", category: "Exotic Fish" },
+    { name: "Rimless Glass Tank 60cm", price: 4500, image: "/assets/product-tank.jpg", category: "Aquariums" },
+    { name: "Java Moss Bunch", price: 120, image: "/assets/product-javamoss.jpg", category: "Aquarium Plants" },
+    { name: "Pro LED Light Bar", price: 2800, image: "/assets/product-led.jpg", category: "Lighting" },
+    { name: "Blue Discus Fish", price: 3500, image: "/assets/product-discus.jpg", category: "Exotic Fish" },
+    { name: "Anubias Nana on Rock", price: 250, image: "/assets/product-anubias.jpg", category: "Aquarium Plants" },
+];
 
 export async function GET(req: NextRequest) {
     try {

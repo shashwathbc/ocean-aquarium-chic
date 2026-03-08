@@ -10,32 +10,47 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
 import { Button } from "@/components/ui/button";
-import { products } from "@/components/FeaturedProducts";
+import { useProducts } from "@/hooks/useProducts";
 import ProductCard from "@/components/ProductCard";
 import { useToast } from "@/components/ui/use-toast";
 
 const ProductDetail = () => {
   const params = useParams();
   const id = typeof params?.id === 'string' ? params.id : Array.isArray(params?.id) ? params.id[0] : '';
-  const product = products.find((p) => p.id === id);
-  const [qty, setQty] = useState(1);
-  const { cart, addToCart } = useCartStore();
   const { toast } = useToast();
   const router = useRouter();
+  const [qty, setQty] = useState(1);
+  const { cart, addToCart } = useCartStore();
+
+  const { data: fetchedProducts, isLoading } = useProducts();
+  const products = fetchedProducts || [];
+
+  const product = products.find((p: any) => p.id === id || p._id === id);
 
   const [activeMedia, setActiveMedia] = useState(0);
 
-  const cartItem = cart.find(item => item.product.id === id);
-
-  if (!product) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p>Product not found.</p>
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
-  const related = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4);
+  if (!product) {
+    return (
+      <div className="min-h-screen flex items-center justify-center flex-col gap-4">
+        <p className="text-xl font-display font-medium text-muted-foreground">Product not found.</p>
+        <Link href="/shop" className="text-primary hover:underline">Return to Shop</Link>
+      </div>
+    );
+  }
+
+  // Ensure consistent ID for cart operations
+  const productId = product._id || product.id;
+  const cartItem = cart.find(item => (item.product._id || item.product.id) === productId);
+
+  const related = products.filter((p: any) => p.category === product.category && (p.id !== productId && p._id !== productId)).slice(0, 4);
 
   const media = [
     { type: 'video', url: 'https://cdn.pixabay.com/video/2016/08/22/4762-181514781_tiny.mp4' },
@@ -147,9 +162,10 @@ const ProductDetail = () => {
             <div className="mt-20">
               <h2 className="font-display font-bold text-2xl mb-8">Related Products</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                {related.map((p) => (
-                  <ProductCard key={p.id} product={p} />
-                ))}
+                {related.map((p: any) => {
+                  const productData = { ...p, id: p._id || p.id };
+                  return <ProductCard key={productData.id} product={productData} />;
+                })}
               </div>
             </div>
           )}

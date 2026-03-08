@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
 import ProductCard from "@/components/ProductCard";
-import { products } from "@/components/FeaturedProducts";
+import { useProducts } from "@/hooks/useProducts";
 import { Button } from "@/components/ui/button";
 
 const categoryFilters = ["All", "Exotic Fish", "Aquariums", "Aquarium Plants", "Lighting"];
@@ -15,7 +15,10 @@ const Shop = () => {
   const [activeCategory, setActiveCategory] = useState("All");
   const [sortBy, setSortBy] = useState("Default");
 
-  let filtered = activeCategory === "All" ? products : products.filter((p) => p.category === activeCategory);
+  const { data: fetchedProducts, isLoading } = useProducts();
+  const products = fetchedProducts || [];
+
+  let filtered = activeCategory === "All" ? products : products.filter((p: any) => p.category === activeCategory);
 
   if (sortBy === "Price: Low to High") filtered = [...filtered].sort((a, b) => a.price - b.price);
   if (sortBy === "Price: High to Low") filtered = [...filtered].sort((a, b) => b.price - a.price);
@@ -61,21 +64,29 @@ const Shop = () => {
             </select>
           </div>
 
-          {/* Products grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-            {filtered.map((product, i) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05 }}
-              >
-                <ProductCard product={product} />
-              </motion.div>
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="flex justify-center py-20">
+              <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+              {filtered.map((product: any, i: number) => {
+                const productData = { ...product, id: product._id || product.id };
+                return (
+                  <motion.div
+                    key={productData.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                  >
+                    <ProductCard product={productData} />
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
 
-          {filtered.length === 0 && (
+          {!isLoading && filtered.length === 0 && (
             <p className="text-center text-muted-foreground py-20">No products found in this category.</p>
           )}
         </div>
