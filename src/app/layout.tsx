@@ -1,5 +1,6 @@
 import "./globals.css";
 import { Providers } from "./providers";
+import AdminFloatingButton from "@/components/AdminFloatingButton";
 import type { Metadata, Viewport } from "next";
 
 export const metadata: Metadata = {
@@ -25,7 +26,10 @@ export default function RootLayout({
                 <meta name="apple-mobile-web-app-capable" content="yes" />
             </head>
             <body>
-                <Providers>{children}</Providers>
+                <Providers>
+                    {children}
+                    <AdminFloatingButton />
+                </Providers>
             </body>
         </html>
     );

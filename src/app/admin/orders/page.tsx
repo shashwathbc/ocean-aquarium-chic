@@ -23,6 +23,8 @@ interface Order {
     };
     items: OrderItem[];
     totalAmount: number;
+    couponCode?: string;
+    discountAmount?: number;
     status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
     paymentMethod: string;
     createdAt: string;
@@ -207,9 +209,16 @@ export default function AdminOrdersPage() {
                                         </td>
 
                                         <td className="px-6 py-4">
-                                            <span className="font-bold text-gray-900 dark:text-white">
-                                                ₹{order.totalAmount.toLocaleString()}
-                                            </span>
+                                            <div className="flex flex-col space-y-1">
+                                                <span className="font-bold text-gray-900 dark:text-white">
+                                                    ₹{order.totalAmount.toLocaleString()}
+                                                </span>
+                                                {order.couponCode && order.discountAmount ? (
+                                                    <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-medium inline-block w-fit">
+                                                        {order.couponCode} (-₹{order.discountAmount.toLocaleString()})
+                                                    </span>
+                                                ) : null}
+                                            </div>
                                         </td>
 
                                         <td className="px-6 py-4 text-center">

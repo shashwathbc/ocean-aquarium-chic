@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { MoreVertical, ArrowUpRight, ArrowDownRight, Filter, Search } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, Filter, Search, Loader2 } from "lucide-react";
 import WeeklyReportChart from "@/components/admin/dashboard/WeeklyReportChart";
 import UsersBarChart from "@/components/admin/dashboard/UsersBarChart";
+import { useQuery } from "@tanstack/react-query";
 
 // Type for products fetched from the API
 type Product = {
@@ -14,14 +15,6 @@ type Product = {
     price: number;
     image: string;
 };
-
-// Dummy data for transactions
-const transactionsData = [
-    { id: '#6545', date: '01 Oct | 11:29 am', status: 'Paid', amount: 64 },
-    { id: '#5412', date: '01 Oct | 11:29 am', status: 'Pending', amount: 557 },
-    { id: '#4512', date: '01 Oct | 11:29 am', status: 'Canceled', amount: 125 },
-    { id: '#5412', date: '01 Oct | 11:29 am', status: 'Paid', amount: 200 },
-];
 
 export default function AdminDashboardPage() {
     const [topProducts, setTopProducts] = useState<Product[]>([]);
@@ -45,6 +38,21 @@ export default function AdminDashboardPage() {
         fetchProducts();
     }, []);
 
+    // Fetch Dashboard Metrics
+    const { data: metrics, isLoading: isMetricsLoading } = useQuery({
+        queryKey: ["admin", "dashboard", "metrics"],
+        queryFn: async () => {
+            const res = await fetch("/api/admin/dashboard");
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error);
+            return data.data;
+        }
+    });
+
+    if (isMetricsLoading) {
+        return <div className="flex h-96 items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+    }
+
     return (
         <div className="space-y-6 pb-12">
 
@@ -54,18 +62,12 @@ export default function AdminDashboardPage() {
                 <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm relative">
                     <div className="flex justify-between items-start mb-4">
                         <h3 className="text-[15px] font-semibold text-gray-800 dark:text-gray-200">Total Sales</h3>
-                        <button className="text-gray-400 hover:text-gray-600"><MoreVertical className="w-5 h-5" /></button>
                     </div>
-                    <p className="text-xs text-gray-500 mb-2">Last 7 days</p>
+                    <p className="text-xs text-gray-500 mb-2">Lifetime volume</p>
                     <div className="flex items-baseline gap-3 mb-1">
-                        <span className="text-3xl font-bold text-gray-900 dark:text-white">$350K</span>
-                        <span className="flex items-center text-xs font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
-                            <ArrowUpRight className="w-3 h-3 mr-0.5" /> 10.4%
+                        <span className="text-3xl font-bold text-gray-900 dark:text-white">
+                            ₹{metrics?.totalSales?.toLocaleString() || 0}
                         </span>
-                    </div>
-                    <p className="text-xs text-gray-500 mb-4">Previous 7days <span className="text-muted-foreground font-medium">($235)</span></p>
-                    <div className="flex justify-end mt-2">
-                        <button className="px-5 py-1.5 text-xs font-semibold text-primary border border-primary/20 rounded-full hover:bg-primary/5 transition">Details</button>
                     </div>
                 </div>
 
@@ -73,18 +75,12 @@ export default function AdminDashboardPage() {
                 <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm relative">
                     <div className="flex justify-between items-start mb-4">
                         <h3 className="text-[15px] font-semibold text-gray-800 dark:text-gray-200">Total Orders</h3>
-                        <button className="text-gray-400 hover:text-gray-600"><MoreVertical className="w-5 h-5" /></button>
                     </div>
-                    <p className="text-xs text-gray-500 mb-2">Last 7 days</p>
+                    <p className="text-xs text-gray-500 mb-2">Lifetime volume</p>
                     <div className="flex items-baseline gap-3 mb-1">
-                        <span className="text-3xl font-bold text-gray-900 dark:text-white">10.7K</span>
-                        <span className="flex items-center text-xs font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
-                            <ArrowUpRight className="w-3 h-3 mr-0.5" /> 14.4%
+                        <span className="text-3xl font-bold text-gray-900 dark:text-white">
+                            {metrics?.totalOrders?.toLocaleString() || 0}
                         </span>
-                    </div>
-                    <p className="text-xs text-gray-500 mb-4">Previous 7days <span className="text-muted-foreground font-medium">(7.6k)</span></p>
-                    <div className="flex justify-end mt-2">
-                        <button className="px-5 py-1.5 text-xs font-semibold text-primary border border-primary/20 rounded-full hover:bg-primary/5 transition">Details</button>
                     </div>
                 </div>
 
@@ -92,30 +88,22 @@ export default function AdminDashboardPage() {
                 <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm relative">
                     <div className="flex justify-between items-start mb-4">
                         <h3 className="text-[15px] font-semibold text-gray-800 dark:text-gray-200">Pending & Canceled</h3>
-                        <button className="text-gray-400 hover:text-gray-600"><MoreVertical className="w-5 h-5" /></button>
                     </div>
-                    <p className="text-xs text-gray-500 mb-4">Last 7 days</p>
+                    <p className="text-xs text-gray-500 mb-4">Lifetime volume</p>
                     <div className="flex items-center justify-between mb-4">
                         <div>
-                            <p className="text-xs text-gray-500 mb-1">Pending</p>
+                            <p className="text-xs text-gray-500 mb-1">Pending Processing</p>
                             <div className="flex items-baseline gap-2">
-                                <span className="text-2xl font-bold text-gray-900 dark:text-white">509</span>
-                                <span className="text-xs font-semibold text-primary">user 204</span>
+                                <span className="text-2xl font-bold text-gray-900 dark:text-white">{metrics?.pendingCount || 0}</span>
                             </div>
                         </div>
                         <div className="w-px h-10 bg-gray-200 dark:bg-gray-700"></div>
                         <div>
                             <p className="text-xs text-gray-500 mb-1">Canceled</p>
                             <div className="flex items-baseline gap-2">
-                                <span className="text-2xl font-bold text-destructive">94</span>
-                                <span className="flex items-center text-xs font-semibold text-destructive">
-                                    <ArrowDownRight className="w-3 h-3 mr-0.5" /> 14.4%
-                                </span>
+                                <span className="text-2xl font-bold text-destructive">{metrics?.cancelledCount || 0}</span>
                             </div>
                         </div>
-                    </div>
-                    <div className="flex justify-end mt-4">
-                        <button className="px-5 py-1.5 text-xs font-semibold text-primary border border-primary/20 rounded-full hover:bg-primary/5 transition">Details</button>
                     </div>
                 </div>
             </div>
@@ -132,7 +120,6 @@ export default function AdminDashboardPage() {
                                 <button className="px-4 py-1.5 text-xs font-semibold bg-white dark:bg-gray-800 text-primary rounded shadow-sm">This week</button>
                                 <button className="px-4 py-1.5 text-xs font-medium text-gray-500 hover:text-gray-700">Last week</button>
                             </div>
-                            <button className="text-gray-400 hover:text-gray-600"><MoreVertical className="w-5 h-5" /></button>
                         </div>
                     </div>
 
@@ -166,7 +153,6 @@ export default function AdminDashboardPage() {
                 <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col">
                     <div className="flex justify-between items-start mb-2">
                         <h3 className="text-sm font-semibold text-primary">Users in last 30 minutes</h3>
-                        <button className="text-gray-400 hover:text-gray-600"><MoreVertical className="w-5 h-5" /></button>
                     </div>
                     <p className="text-3xl font-bold text-gray-900 dark:text-white mb-1">21.5K</p>
                     <p className="text-[11px] text-gray-500 mb-3">Users per minute</p>
@@ -261,24 +247,31 @@ export default function AdminDashboardPage() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100 dark:divide-gray-800 text-gray-800 dark:text-gray-200">
-                                {transactionsData.map((trx, index) => (
-                                    <tr key={index} className="hover:bg-muted/50 transition">
-                                        <td className="px-6 py-5 text-gray-500 font-medium">{index + 1}.</td>
-                                        <td className="px-6 py-5 font-semibold">{trx.id}</td>
-                                        <td className="px-6 py-5 text-gray-500 text-xs">{trx.date}</td>
-                                        <td className="px-6 py-5">
-                                            <span className={`flex items-center gap-1.5 text-xs font-semibold ${trx.status === 'Paid' ? 'text-primary' :
-                                                    trx.status === 'Pending' ? 'text-accent' : 'text-destructive'
-                                                }`}>
-                                                <div className={`w-1.5 h-1.5 rounded-full ${trx.status === 'Paid' ? 'bg-primary' :
-                                                        trx.status === 'Pending' ? 'bg-accent' : 'bg-destructive'
-                                                    }`}></div>
-                                                {trx.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-5 font-bold text-right">${trx.amount}</td>
+                                {metrics?.recentTransactions?.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={5} className="px-6 py-8 text-center text-gray-500">No recent transactions.</td>
                                     </tr>
-                                ))}
+                                ) : (
+                                    metrics?.recentTransactions?.map((trx: any, index: number) => (
+                                        <tr key={index} className="hover:bg-muted/50 transition">
+                                            <td className="px-6 py-5 text-gray-500 font-medium">{index + 1}.</td>
+                                            <td className="px-6 py-5 font-semibold text-primary">
+                                                <Link href="/admin/orders">{trx.id}</Link>
+                                            </td>
+                                            <td className="px-6 py-5 text-gray-500 text-xs">{trx.date}</td>
+                                            <td className="px-6 py-5">
+                                                <span className={`flex w-fit px-2 py-0.5 rounded items-center gap-1.5 text-[10px] uppercase font-bold 
+                                                    ${trx.status === 'Delivered' || trx.status === 'Paid' ? 'bg-green-100 text-green-700' :
+                                                        trx.status === 'Pending' || trx.status === 'Processing' ? 'bg-yellow-100 text-yellow-700' :
+                                                            'bg-red-100 text-red-700'
+                                                    }`}>
+                                                    {trx.status}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-5 font-bold text-right">₹{trx.amount.toLocaleString()}</td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
                     </div>

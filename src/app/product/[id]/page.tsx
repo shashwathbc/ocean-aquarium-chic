@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Minus, Plus, ShoppingCart, ArrowLeft } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCartStore } from "@/store/useCartStore";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -20,15 +20,34 @@ const ProductDetail = () => {
   const id = typeof params?.id === 'string' ? params.id : Array.isArray(params?.id) ? params.id[0] : '';
   const { toast } = useToast();
   const router = useRouter();
-  const [qty, setQty] = useState(1);
   const { cart, addToCart } = useCartStore();
 
   const { data: fetchedProducts, isLoading } = useProducts();
   const products = fetchedProducts || [];
 
   const product = products.find((p: any) => p.id === id || p._id === id);
+  const productId = product ? (product._id || product.id) : null;
+  const cartItem = cart.find(item => (item.product._id || item.product.id) === productId);
 
+  const [qty, setQty] = useState(1);
   const [activeMedia, setActiveMedia] = useState(0);
+  const [isMounted, setIsMounted] = useState(false);
+  const [hasSynced, setHasSynced] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isMounted && cartItem && !hasSynced) {
+      setQty(cartItem.qty);
+      setHasSynced(true);
+    }
+  }, [cartItem, hasSynced, isMounted]);
+
+  if (!isMounted) {
+    return null; // Or a loading skeleton
+  }
 
   if (isLoading) {
     return (
@@ -46,10 +65,6 @@ const ProductDetail = () => {
       </div>
     );
   }
-
-  // Ensure consistent ID for cart operations
-  const productId = product._id || product.id;
-  const cartItem = cart.find(item => (item.product._id || item.product.id) === productId);
 
   const related = products.filter((p: any) => p.category === product.category && (p.id !== productId && p._id !== productId)).slice(0, 4);
 
@@ -165,7 +180,7 @@ const ProductDetail = () => {
                   <ShoppingCart className="h-6 w-6 mr-3" />
                   {!product.inStock ? "Out of Stock" : cartItem ? "Update Cart Quantity" : "Add to Cart"}
                 </Button>
-                <Link href={product.inStock ? "/checkout" : "#"} className="flex-1 flex pointer-events-auto">
+                <Link href={product.inStock ? "/cart" : "#"} className="flex-1 flex pointer-events-auto">
                   <Button
                     variant="coral"
                     size="lg"
@@ -188,7 +203,7 @@ const ProductDetail = () => {
 
           {/* Product Reviews Section */}
           <div className="mt-8">
-            <ProductReviews productId={productId} />
+            <ProductReviews productId={productId as string} />
           </div>
 
           {/* Related */}

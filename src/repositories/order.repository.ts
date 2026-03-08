@@ -33,6 +33,14 @@ export class OrderRepository {
         ).lean();
         return order ? JSON.parse(JSON.stringify(order)) : null;
     }
+
+    async findByCustomerPhone(phone: string): Promise<IOrder[]> {
+        await dbConnect();
+        const orders = await Order.find({ 'customerDetails.phone': phone })
+            .sort({ createdAt: -1 })
+            .lean();
+        return JSON.parse(JSON.stringify(orders));
+    }
 }
 
 export const orderRepository = new OrderRepository();

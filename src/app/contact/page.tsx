@@ -2,6 +2,8 @@
 import { motion } from "framer-motion";
 import { Phone, MapPin, MessageCircle, Send } from "lucide-react";
 import { useState } from "react";
+import { Loader2 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
@@ -10,7 +12,35 @@ import { useSettings } from "@/hooks/useSettings";
 
 const Contact = () => {
   const [sent, setSent] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({ name: "", phone: "", message: "", email: "no-email@contact.form" });
   const { data: settings } = useSettings();
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/enquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setSent(true);
+        toast({ title: "Message Sent", description: "We will get back to you shortly." });
+        setFormData({ name: "", phone: "", message: "", email: "no-email@contact.form" });
+      } else {
+        toast({ title: "Failed to send", description: data.error || "Please try again later.", variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Something went wrong.", variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen">
@@ -91,24 +121,24 @@ const Contact = () => {
               animate={{ opacity: 1, x: 0 }}
             >
               <form
-                onSubmit={(e) => { e.preventDefault(); setSent(true); }}
+                onSubmit={handleSubmit}
                 className="glass rounded-2xl p-6 md:p-8 space-y-5"
               >
                 <h3 className="font-display font-bold text-xl mb-2">Send us a Message</h3>
                 <div>
                   <label className="font-display font-semibold text-sm mb-1.5 block">Name</label>
-                  <input required className="w-full px-4 py-3 rounded-xl border border-input bg-background font-body focus:ring-2 focus:ring-ring outline-none" placeholder="Your name" />
+                  <input required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-input bg-background font-body focus:ring-2 focus:ring-ring outline-none" placeholder="Your name" />
                 </div>
                 <div>
                   <label className="font-display font-semibold text-sm mb-1.5 block">Phone</label>
-                  <input required className="w-full px-4 py-3 rounded-xl border border-input bg-background font-body focus:ring-2 focus:ring-ring outline-none" placeholder="+91 98765 43210" />
+                  <input required value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value, email: `${e.target.value}@phone.contact` })} className="w-full px-4 py-3 rounded-xl border border-input bg-background font-body focus:ring-2 focus:ring-ring outline-none" placeholder="+91 98765 43210" />
                 </div>
                 <div>
                   <label className="font-display font-semibold text-sm mb-1.5 block">Message</label>
-                  <textarea required rows={5} className="w-full px-4 py-3 rounded-xl border border-input bg-background font-body focus:ring-2 focus:ring-ring outline-none resize-none" placeholder="How can we help?" />
+                  <textarea required value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })} rows={5} className="w-full px-4 py-3 rounded-xl border border-input bg-background font-body focus:ring-2 focus:ring-ring outline-none resize-none" placeholder="How can we help?" />
                 </div>
-                <Button type="submit" size="lg" className="w-full" disabled={sent}>
-                  {sent ? "Message Sent ✓" : <><Send className="h-4 w-4 mr-2" /> Send Message</>}
+                <Button type="submit" size="lg" className="w-full" disabled={sent || isLoading}>
+                  {isLoading ? "Sending..." : sent ? "Message Sent ✓" : <><Send className="h-4 w-4 mr-2" /> Send Message</>}
                 </Button>
               </form>
             </motion.div>

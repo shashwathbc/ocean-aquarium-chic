@@ -30,6 +30,7 @@ export default function LoginPage() {
             const data = await res.json();
 
             if (res.ok && data.success) {
+                localStorage.setItem("isAuthenticated", "true");
                 router.push("/admin");
                 router.refresh(); // Required to force middleware evaluation
             } else {
