@@ -52,12 +52,20 @@ const ProductDetail = () => {
 
   const related = products.filter((p: any) => p.category === product.category && (p.id !== productId && p._id !== productId)).slice(0, 4);
 
-  const media = [
-    { type: 'video', url: 'https://cdn.pixabay.com/video/2016/08/22/4762-181514781_tiny.mp4' },
-    { type: 'image', url: typeof product.image === 'object' && 'src' in product.image ? (product.image as any).src : product.image as string },
-    { type: 'image', url: 'https://images.unsplash.com/photo-1544253018-b2031a0aaeaf?q=80&w=600' },
-    { type: 'image', url: 'https://images.unsplash.com/photo-1522069169874-c58ced4e0cd0?q=80&w=600' }
-  ];
+  // Dynamically map the product images. If `images` array exists, use it. Otherwise, fallback to singular `image`.
+  const media = product.images && product.images.length > 0
+    ? product.images.map((url: string) => ({
+      type: url.match(/\.(mp4|webm)$/i) ? 'video' : 'image',
+      url
+    }))
+    : [{
+      type: 'image',
+      url: typeof product.image === 'object' && product.image !== null && 'src' in product.image
+        ? (product.image as any).src
+        : (product.image as string || "https://images.unsplash.com/photo-1544253018-b2031a0aaeaf?q=80&w=600")
+    }];
+
+  const maxQty = product.stockCount ? Math.max(1, product.stockCount) : 10;
 
   return (
     <div className="min-h-screen">
@@ -84,7 +92,7 @@ const ProductDetail = () => {
                 )}
               </div>
               <div className="flex gap-4 overflow-x-auto pb-2 custom-scrollbar">
-                {media.map((m, idx) => (
+                {media.map((m: any, idx: number) => (
                   <button key={idx} onClick={() => setActiveMedia(idx)} className={`relative w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden flex-shrink-0 border-2 transition-all duration-300 ${activeMedia === idx ? 'border-primary scale-105 shadow-md shadow-primary/20' : 'border-transparent opacity-60 hover:opacity-100 hover:scale-[1.02]'}`}>
                     {m.type === 'video' ? (
                       <video src={m.url} className="w-full h-full object-cover" muted playsInline />
@@ -106,25 +114,38 @@ const ProductDetail = () => {
               <span className="text-sm font-display text-primary uppercase tracking-widest font-bold">
                 {product.category}
               </span>
-              <h1 className="font-display font-black text-4xl md:text-5xl lg:text-6xl mt-3 mb-6 leading-tight">
+              <h1 className="font-display font-black text-4xl md:text-5xl lg:text-6xl mt-3 mb-4 leading-tight">
                 {product.name}
               </h1>
-              <p className="text-3xl lg:text-4xl font-display font-bold text-primary mb-8 drop-shadow-sm">
-                ₹{product.price.toLocaleString()}
-              </p>
-              <p className="text-foreground/80 leading-relaxed mb-10 text-lg">
-                Premium quality {product.name.toLowerCase()} sourced from trusted breeders. Perfect for home and office aquariums. Comes with care guide and health guarantee.
+
+              <div className="flex items-center gap-4 mb-6">
+                <p className="text-3xl lg:text-4xl font-display font-bold text-primary drop-shadow-sm">
+                  ₹{product.price.toLocaleString()}
+                </p>
+                <div className="flex items-center gap-2">
+                  <span className={`px-3 py-1 rounded-full text-sm font-semibold shadow-sm ${product.inStock ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-destructive/10 text-destructive dark:bg-destructive/20'}`}>
+                    {product.inStock ? 'In Stock' : 'Out of Stock'}
+                  </span>
+                  {product.inStock && product.stockCount !== undefined && product.stockCount > 0 && (
+                    <span className="text-xs font-semibold text-muted-foreground bg-muted px-2 py-1 rounded-full">
+                      {product.stockCount} Available
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <p className="text-foreground/80 leading-relaxed mb-10 text-lg whitespace-pre-line">
+                {product.description || `Premium quality ${product.name.toLowerCase()} sourced from trusted breeders. Perfect for home and office aquariums. Comes with care guide and health guarantee.`}
               </p>
 
-              {/* Quantity */}
               <div className="flex items-center gap-6 mb-8">
                 <span className="font-display font-bold text-lg">Quantity</span>
                 <div className="flex items-center gap-3 border border-border/60 bg-muted/30 rounded-2xl p-1 shadow-sm">
-                  <Button size="icon" variant="ghost" className="h-10 w-10 md:h-12 md:w-12 rounded-xl hover:bg-background shadow-sm hover:shadow-md transition-all" onClick={() => setQty(Math.max(1, qty - 1))}>
+                  <Button size="icon" variant="ghost" className="h-10 w-10 md:h-12 md:w-12 rounded-xl hover:bg-background shadow-sm hover:shadow-md transition-all disabled:opacity-50" disabled={!product.inStock} onClick={() => setQty(Math.max(1, qty - 1))}>
                     <Minus className="h-5 w-5 md:h-6 md:w-6" />
                   </Button>
-                  <span className="w-10 md:w-12 text-center font-display font-bold text-xl md:text-2xl">{qty}</span>
-                  <Button size="icon" variant="ghost" className="h-10 w-10 md:h-12 md:w-12 rounded-xl hover:bg-background shadow-sm hover:shadow-md transition-all" onClick={() => setQty(Math.min(10, qty + 1))}>
+                  <span className="w-10 md:w-12 text-center font-display font-bold text-xl md:text-2xl opacity-90">{qty}</span>
+                  <Button size="icon" variant="ghost" className="h-10 w-10 md:h-12 md:w-12 rounded-xl hover:bg-background shadow-sm hover:shadow-md transition-all disabled:opacity-50" disabled={!product.inStock || qty >= maxQty} onClick={() => setQty(Math.min(maxQty, qty + 1))}>
                     <Plus className="h-5 w-5 md:h-6 md:w-6" />
                   </Button>
                 </div>
@@ -134,21 +155,28 @@ const ProductDetail = () => {
                 <Button
                   variant={cartItem ? "secondary" : "default"}
                   size="lg"
-                  className={`flex-1 py-7 text-lg font-bold shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 ${cartItem ? 'bg-green-500/10 text-green-600 hover:bg-green-500/20 hover:text-green-700 shadow-green-500/10' : 'shadow-primary/20'}`}
+                  disabled={!product.inStock}
+                  className={`flex-1 py-7 text-lg font-bold shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 ${cartItem ? 'bg-green-500/10 text-green-600 hover:bg-green-500/20 hover:text-green-700 shadow-green-500/10' : 'shadow-primary/20'} disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed`}
                   onClick={() => {
                     addToCart(product, qty);
-                    // CartProvider already handles toast.success but we can keep it silent here or let contexts handle it
                   }}
                 >
                   <ShoppingCart className="h-6 w-6 mr-3" />
-                  {cartItem ? "Update Cart Quantity" : "Add to Cart"}
+                  {!product.inStock ? "Out of Stock" : cartItem ? "Update Cart Quantity" : "Add to Cart"}
                 </Button>
-                <Link href="/checkout" className="flex-1 flex">
+                <Link href={product.inStock ? "/checkout" : "#"} className="flex-1 flex pointer-events-auto">
                   <Button
                     variant="coral"
                     size="lg"
-                    className="w-full py-7 text-lg font-bold shadow-xl shadow-accent/20 hover:scale-105 active:scale-95 transition-all duration-300"
-                    onClick={() => addToCart(product, qty)}
+                    disabled={!product.inStock}
+                    className="w-full py-7 text-lg font-bold shadow-xl shadow-accent/20 hover:scale-105 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
+                    onClick={(e) => {
+                      if (product.inStock) {
+                        addToCart(product, qty);
+                      } else {
+                        e.preventDefault();
+                      }
+                    }}
                   >
                     Buy Now
                   </Button>

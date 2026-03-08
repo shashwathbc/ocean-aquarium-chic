@@ -13,7 +13,9 @@ type ProductFormProps = {
         brand?: string;
         description: string;
         image: string;
+        images?: string[];
         inStock: boolean;
+        stockCount?: number;
     };
     isEditMode?: boolean;
 };
@@ -31,10 +33,14 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         description: initialData?.description || "",
         image: initialData?.image || "",
         inStock: initialData?.inStock ?? true,
+        stockCount: initialData?.stockCount ?? 0,
     });
 
-    const [file, setFile] = useState<File | null>(null);
-    const [previewUrl, setPreviewUrl] = useState<string | null>(initialData?.image || null);
+    const [existingImages, setExistingImages] = useState<string[]>(
+        initialData?.images?.length ? initialData.images : (initialData?.image ? [initialData.image] : [])
+    );
+    const [files, setFiles] = useState<File[]>([]);
+    const [previewUrls, setPreviewUrls] = useState<string[]>([]);
 
     const [categories, setCategories] = useState<{ _id: string; name: string }[]>([]);
     const [isLoadingCategories, setIsLoadingCategories] = useState(true);
@@ -75,11 +81,22 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
     }, []);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const selected = e.target.files?.[0];
-        if (selected) {
-            setFile(selected);
-            setPreviewUrl(URL.createObjectURL(selected));
+        const selected = Array.from(e.target.files || []);
+        if (selected.length > 0) {
+            setFiles(prev => [...prev, ...selected]);
+            const newUrls = selected.map(f => URL.createObjectURL(f));
+            setPreviewUrls(prev => [...prev, ...newUrls]);
         }
+    };
+
+    const removeExisting = (index: number) => {
+        setExistingImages(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const removeNew = (index: number) => {
+        setFiles(prev => prev.filter((_, i) => i !== index));
+        URL.revokeObjectURL(previewUrls[index]);
+        setPreviewUrls(prev => prev.filter((_, i) => i !== index));
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -97,25 +114,32 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         setError(null);
 
         try {
-            let imageUrl = formData.image;
+            let finalImageUrls = [...existingImages];
 
-            // If a new file is selected, upload it first
-            if (file) {
-                const uploadData = new FormData();
-                uploadData.append("file", file);
+            // If new files selected, upload them linearly
+            if (files.length > 0) {
+                for (let f of files) {
+                    const uploadData = new FormData();
+                    uploadData.append("file", f);
 
-                const uploadRes = await fetch("/api/upload", {
-                    method: "POST",
-                    body: uploadData,
-                });
+                    const uploadRes = await fetch("/api/upload", {
+                        method: "POST",
+                        body: uploadData,
+                    });
 
-                const uploadJson = await uploadRes.json();
-                if (!uploadRes.ok) throw new Error(uploadJson.error || "Failed to upload image");
-                imageUrl = uploadJson.url;
+                    const uploadJson = await uploadRes.json();
+                    if (!uploadRes.ok) throw new Error(uploadJson.error || `Failed to upload ${f.name}`);
+                    finalImageUrls.push(uploadJson.url);
+                }
             }
 
             // Now save the product
-            const payload = { ...formData, image: imageUrl, brand: formData.brand || undefined };
+            const payload = {
+                ...formData,
+                image: finalImageUrls[0] || "",
+                images: finalImageUrls,
+                brand: formData.brand || undefined
+            };
 
             const endpoint = isEditMode ? `/api/products/${initialData?._id}` : "/api/products";
             const method = isEditMode ? "PUT" : "POST";
@@ -225,6 +249,19 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">In Stock</span>
                     </label>
                 </div>
+
+                <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Stock Count</label>
+                    <input
+                        type="number"
+                        name="stockCount"
+                        min="0"
+                        value={formData.stockCount}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        placeholder="0"
+                    />
+                </div>
             </div>
 
             <div className="space-y-2">
@@ -240,39 +277,67 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
             </div>
 
             <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Product Image</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Product Media</label>
 
-                {/* Visual Image Upload Area */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                    {/* Existing Images */}
+                    {existingImages.map((url, idx) => {
+                        const isVideo = url.match(/\.(mp4|webm)$/i);
+                        return (
+                            <div key={`existing-${idx}`} className="relative aspect-square border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden group bg-muted">
+                                {isVideo ? (
+                                    <video src={url} className="w-full h-full object-cover" muted playsInline />
+                                ) : (
+                                    <Image src={url} alt={`Media ${idx}`} fill className="object-cover" />
+                                )}
+                                <button type="button" onClick={() => removeExisting(idx)} className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-md z-10">
+                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
+                            </div>
+                        );
+                    })}
+
+                    {/* New Files */}
+                    {previewUrls.map((url, idx) => {
+                        const isVideo = files[idx]?.type.startsWith("video/");
+                        return (
+                            <div key={`new-${idx}`} className="relative aspect-square border-2 border-teal-500 rounded-lg overflow-hidden group bg-muted">
+                                {isVideo ? (
+                                    <video src={url} className="w-full h-full object-cover" muted playsInline />
+                                ) : (
+                                    <Image src={url} alt={`Preview ${idx}`} fill className="object-cover" />
+                                )}
+                                <button type="button" onClick={() => removeNew(idx)} className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-md z-10">
+                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
+                                <span className="absolute bottom-2 left-2 bg-teal-600 text-[10px] px-2 py-0.5 rounded text-white font-bold uppercase tracking-wider z-10">New</span>
+                            </div>
+                        );
+                    })}
+                </div>
+
+                {/* Upload Trigger Area */}
                 <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
                     <div className="space-y-1 text-center">
-                        {previewUrl ? (
-                            <div className="relative mx-auto w-40 h-40 mb-4 overflow-hidden rounded-md border border-gray-200">
-                                <Image
-                                    src={previewUrl}
-                                    alt="Preview"
-                                    fill
-                                    className="object-cover"
-                                />
-                            </div>
-                        ) : (
-                            <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                        )}
+                        <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
                         <div className="flex text-sm text-gray-600 dark:text-gray-400 justify-center">
-                            <label htmlFor="file-upload" className="relative cursor-pointer bg-white dark:bg-gray-800 rounded-md font-medium text-teal-600 dark:text-teal-400 hover:text-teal-500 focus-within:outline-none px-1">
-                                <span>{previewUrl ? 'Change file' : 'Upload a file'}</span>
+                            <label htmlFor="file-upload" className="relative cursor-pointer bg-transparent rounded-md font-medium text-teal-600 dark:text-teal-400 hover:text-teal-500 focus-within:outline-none px-1">
+                                <span>Upload media files</span>
                                 <input
                                     id="file-upload"
                                     name="file-upload"
                                     type="file"
                                     className="sr-only"
-                                    accept="image/*"
+                                    multiple
+                                    accept="image/*,video/*"
                                     onChange={handleFileChange}
                                 />
                             </label>
+                            <p className="pl-1">or drag and drop</p>
                         </div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, GIF up to 5MB</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, GIF, MP4 up to 10MB</p>
                     </div>
                 </div>
             </div>

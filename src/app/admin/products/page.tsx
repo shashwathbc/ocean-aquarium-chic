@@ -11,6 +11,7 @@ type Product = {
     category: string;
     brand?: string;
     image: string;
+    images?: string[];
     inStock: boolean;
 };
 
@@ -136,12 +137,20 @@ export default function ProductsPage() {
                                     <tr key={product._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
                                         <td className="px-6 py-4 flex items-center gap-4">
                                             <div className="w-12 h-12 relative rounded-md overflow-hidden bg-gray-100 border border-gray-200">
-                                                <Image
-                                                    src={product.image || "/assets/placeholder.png"}
-                                                    alt={product.name}
-                                                    fill
-                                                    className="object-cover"
-                                                />
+                                                {((product.images && product.images.length > 0 ? product.images[0] : product.image) || "").match(/\.(mp4|webm)$/i) ? (
+                                                    <video
+                                                        src={(product.images && product.images.length > 0 ? product.images[0] : product.image) || ""}
+                                                        className="w-full h-full object-cover"
+                                                        muted
+                                                        playsInline
+                                                    />
+                                                ) : (
+                                                    <img
+                                                        src={(product.images && product.images.length > 0 ? product.images[0] : product.image) || "/assets/placeholder.png"}
+                                                        alt={product.name}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                )}
                                             </div>
                                             <span className="font-medium text-gray-800 dark:text-gray-200">{product.name}</span>
                                         </td>

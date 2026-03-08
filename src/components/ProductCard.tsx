@@ -10,7 +10,10 @@ interface Product {
   name: string;
   price: number;
   image: any;
+  images?: string[];
   category: string;
+  inStock: boolean;
+  stockCount?: number;
 }
 
 const ProductCard = ({ product }: { product: Product }) => {
@@ -24,7 +27,13 @@ const ProductCard = ({ product }: { product: Product }) => {
     >
       <div className="relative aspect-square overflow-hidden">
         <img
-          src={typeof product.image === 'object' && product.image !== null && 'src' in product.image ? (product.image as any).src : product.image as string}
+          src={
+            (product.images && product.images.length > 0)
+              ? product.images[0]
+              : (typeof product.image === 'object' && product.image !== null && 'src' in product.image
+                ? (product.image as any).src
+                : product.image as string) || "/assets/placeholder.png"
+          }
           alt={product.name}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           loading="lazy"

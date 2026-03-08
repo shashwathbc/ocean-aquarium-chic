@@ -8,7 +8,11 @@ export interface Product {
     name: string;
     price: number;
     image: any;
+    images?: string[];
     category: string;
+    inStock: boolean;
+    stockCount?: number;
+    description?: string;
 }
 
 export interface CartItem {

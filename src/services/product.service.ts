@@ -10,6 +10,8 @@ const productSchema = yup.object().shape({
     brand: yup.string().optional(),
     description: yup.string().optional(),
     inStock: yup.boolean().optional().default(true),
+    stockCount: yup.number().optional().default(0),
+    images: yup.array().of(yup.string().required()).optional().default([]),
 });
 
 // Yup Validation Schema for updating a product (all optional)
@@ -21,6 +23,8 @@ const updateProductSchema = yup.object().shape({
     brand: yup.string().optional(),
     description: yup.string().optional(),
     inStock: yup.boolean().optional(),
+    stockCount: yup.number().optional(),
+    images: yup.array().of(yup.string().required()).optional(),
 });
 
 export class ProductService {
@@ -42,8 +46,11 @@ export class ProductService {
     async createProduct(data: any) {
         // Validate data using yup
         const validatedData = await productSchema.validate(data, { abortEarly: false, stripUnknown: false });
-        // Manually ensure brand is included if present, sometimes Yup drops optionals
-        if (data.brand) validatedData.brand = data.brand;
+        // Manually ensure fields are included if present, sometimes Yup drops optionals
+        if (data.brand !== undefined) validatedData.brand = data.brand;
+        if (data.images !== undefined) validatedData.images = data.images;
+        if (data.stockCount !== undefined) validatedData.stockCount = data.stockCount;
+
         console.log("FINAL CREATE PAYLOAD BEFORE REP:", validatedData);
         return await productRepository.create(validatedData);
     }
@@ -60,6 +67,9 @@ export class ProductService {
         // Validate partial data using yup
         const validatedData = await updateProductSchema.validate(data, { abortEarly: false, stripUnknown: false });
         if (data.brand !== undefined) validatedData.brand = data.brand;
+        if (data.images !== undefined) validatedData.images = data.images;
+        if (data.stockCount !== undefined) validatedData.stockCount = data.stockCount;
+
         console.log("FINAL UPDATE PAYLOAD BEFORE REP:", validatedData);
 
         const updatedProduct = await productRepository.update(id, validatedData);

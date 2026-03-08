@@ -43,7 +43,7 @@ const Cart = () => {
                     className="flex items-center gap-4 p-4 rounded-2xl bg-card card-hover"
                   >
                     <img
-                      src={item.product.image}
+                      src={(item.product.images && item.product.images.length > 0 ? item.product.images[0] : item.product.image) || "/assets/placeholder.png"}
                       alt={item.product.name}
                       className="h-20 w-20 rounded-xl object-cover"
                     />
