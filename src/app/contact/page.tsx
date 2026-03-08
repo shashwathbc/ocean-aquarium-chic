@@ -6,9 +6,11 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
 import { Button } from "@/components/ui/button";
+import { useSettings } from "@/hooks/useSettings";
 
 const Contact = () => {
   const [sent, setSent] = useState(false);
+  const { data: settings } = useSettings();
 
   return (
     <div className="min-h-screen">
@@ -38,7 +40,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <p className="font-display font-semibold">Phone</p>
-                    <p className="text-muted-foreground text-sm">+91 98765 43210</p>
+                    <p className="text-muted-foreground text-sm">{settings?.phone || "+91 98765 43210"}</p>
                   </div>
                 </div>
               </div>
@@ -50,7 +52,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <p className="font-display font-semibold">WhatsApp</p>
-                    <a href="https://wa.me/919876543210" target="_blank" rel="noopener noreferrer" className="text-primary text-sm hover:underline">
+                    <a href={`https://wa.me/${settings?.phone?.replace(/\D/g, '') || "919876543210"}`} target="_blank" rel="noopener noreferrer" className="text-primary text-sm hover:underline">
                       Chat with us
                     </a>
                   </div>
@@ -64,7 +66,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <p className="font-display font-semibold">Address</p>
-                    <p className="text-muted-foreground text-sm">123 MG Road, Bangalore 560001</p>
+                    <p className="text-muted-foreground text-sm">{settings?.address || "123 MG Road, Bangalore 560001"}</p>
                   </div>
                 </div>
               </div>
@@ -72,13 +74,13 @@ const Contact = () => {
               {/* Map */}
               <div className="rounded-2xl overflow-hidden h-[200px]">
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3887.985594859498!2d77.5945627!3d12.9715987!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTLCsDU4JzE3LjgiTiA3N8KwMzUnNDAuNCJF!5e0!3m2!1sen!2sin!4v1234567890"
+                  src={`/api/resolve-map?url=${encodeURIComponent(settings?.mapLocation || "")}&address=${encodeURIComponent(settings?.address || "123 MG Road, Bangalore 560001")}`}
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}
                   allowFullScreen
                   loading="lazy"
-                  title="Aquarium World Location"
+                  title="Store Location"
                 />
               </div>
             </motion.div>

@@ -22,7 +22,8 @@ import {
     Sun,
     Moon,
     LogOut,
-    ExternalLink
+    ExternalLink,
+    Store
 } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
@@ -50,6 +51,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         },
         {
             section: "Admin", items: [
+                { name: "Shop Settings", href: "/admin/shop-settings", icon: Store },
                 { name: "Admin role", href: "/admin/roles", icon: UserCog },
                 { name: "Control Authority", href: "/admin/authority", icon: Shield },
             ]
@@ -91,8 +93,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                                             key={item.href}
                                             href={item.href}
                                             className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-[14px] font-medium transition-all duration-200 ${active
-                                                    ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
-                                                    : "text-muted-foreground hover:bg-accent/10 hover:text-accent"
+                                                ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
+                                                : "text-muted-foreground hover:bg-accent/10 hover:text-accent"
                                                 }`}
                                         >
                                             <Icon className={`w-[18px] h-[18px] ${active ? "text-primary-foreground" : "text-muted-foreground"}`} />

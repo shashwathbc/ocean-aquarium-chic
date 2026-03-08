@@ -4,6 +4,11 @@ import * as yup from "yup";
 // Yup Validation Schema for updating settings
 const updateSettingsSchema = yup.object().shape({
     shopLocation: yup.string().optional(),
+    heroBackground: yup.string().optional(),
+    address: yup.string().optional(),
+    mapLocation: yup.string().optional(),
+    phone: yup.string().optional(),
+    websiteName: yup.string().optional(),
 });
 
 export class SettingsService {

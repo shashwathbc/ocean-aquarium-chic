@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "next-themes";
 import { useCartStore } from "@/store/useCartStore";
 import { useProducts } from "@/hooks/useProducts";
+import { useSettings } from "@/hooks/useSettings";
 
 const navLinks = [
   { label: "Home", to: "/" },
@@ -29,6 +30,8 @@ const Navbar = () => {
 
   const { data: fetchedProducts } = useProducts();
   const products = fetchedProducts || [];
+
+  const { data: settings } = useSettings();
 
   const searchRef = useRef<HTMLDivElement>(null);
   const { theme, setTheme } = useTheme();
@@ -84,7 +87,7 @@ const Navbar = () => {
           <Link href="/" className="flex items-center gap-2 group">
             <Fish className="h-8 w-8 text-primary transition-transform group-hover:scale-110" />
             <span className="font-display font-bold text-xl md:text-2xl gradient-text">
-              Aquarium World
+              {settings?.websiteName || "Aquarium World"}
             </span>
           </Link>
 

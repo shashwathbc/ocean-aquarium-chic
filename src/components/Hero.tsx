@@ -4,17 +4,33 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import heroImg from "@/assets/hero-underwater.jpg";
+import { useSettings } from "@/hooks/useSettings";
 
 const Hero = () => {
+  const { data: settings } = useSettings();
+  const bgUrl = settings?.heroBackground || (heroImg as any).src || (heroImg as unknown as string);
+  const isVideo = bgUrl?.match(/\.(mp4|webm|ogg)$/i);
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background Image */}
+      {/* Background Media */}
       <div className="absolute inset-0">
-        <img
-          src={(heroImg as any).src || (heroImg as unknown as string)}
-          alt="Underwater coral reef with tropical fish"
-          className="w-full h-full object-cover"
-        />
+        {isVideo ? (
+          <video
+            src={bgUrl}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <img
+            src={bgUrl}
+            alt="Underwater coral reef with tropical fish"
+            className="w-full h-full object-cover"
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-b from-[hsl(210,50%,10%,0.4)] via-[hsl(210,50%,10%,0.3)] to-[hsl(210,50%,10%,0.8)]" />
       </div>
 
