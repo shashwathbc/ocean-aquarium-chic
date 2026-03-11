@@ -23,6 +23,16 @@ export class UserRepository {
         await dbConnect();
         return User.findByIdAndUpdate(id, updateData, { new: true, runValidators: true }).exec();
     }
+
+    async findAdminsAndStaff(): Promise<IUser[]> {
+        await dbConnect();
+        return User.find({ role: { $in: ['admin', 'staff'] } }).sort({ createdAt: -1 }).exec();
+    }
+
+    async delete(id: string): Promise<IUser | null> {
+        await dbConnect();
+        return User.findByIdAndDelete(id).exec();
+    }
 }
 
 export const userRepository = new UserRepository();

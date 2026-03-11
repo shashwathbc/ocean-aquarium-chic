@@ -224,7 +224,7 @@ export default function AdminOrdersPage() {
                                         <td className="px-6 py-4 text-center">
                                             <select
                                                 disabled={updatingStatus === order._id}
-                                                className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-2.5 transition-opacity disabled:opacity-50"
+                                                className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-primary focus:border-primary block w-full min-w-[130px] p-2.5 transition-opacity disabled:opacity-50"
                                                 value={order.status}
                                                 onChange={(e) => handleUpdateStatus(order._id, e.target.value)}
                                             >

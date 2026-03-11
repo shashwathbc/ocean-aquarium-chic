@@ -3,8 +3,9 @@ import mongoose, { Document, Schema } from 'mongoose';
 export interface IUser extends Document {
     name: string;
     email: string;
+    number?: string;
     password?: string; // Optional because of future OAuth possibilities
-    role: 'user' | 'admin';
+    role: 'user' | 'admin' | 'staff';
     createdAt: Date;
     updatedAt: Date;
 }
@@ -30,9 +31,14 @@ const UserSchema: Schema = new Schema(
             type: String,
             select: false, // Don't return password by default
         },
+        number: {
+            type: String,
+            trim: true,
+            maxlength: [20, 'Phone number cannot be more than 20 characters'],
+        },
         role: {
             type: String,
-            enum: ['user', 'admin'],
+            enum: ['user', 'admin', 'staff'],
             default: 'user',
         },
     },
